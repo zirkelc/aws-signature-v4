@@ -40,7 +40,8 @@ export const parseRequest = async (input: string | Request | URL, init?: Request
   const method = request.method.toUpperCase();
   const url = new URL(request.url);
   const headers = copyHeaders(request.headers);
-  const body = request.body ? await request.arrayBuffer() : undefined;
+  const buffer = await request.arrayBuffer();
+  const body = buffer.byteLength > 0 ? buffer : undefined;
 
   return {
     method,
