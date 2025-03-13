@@ -1,8 +1,8 @@
-import { Sha256 } from "@aws-crypto/sha256-js";
-import { defaultProvider } from "@aws-sdk/credential-provider-node";
+import { Sha256 } from "@aws-crypto/sha256-universal";
 import type { AwsCredentialIdentity, Provider } from "@aws-sdk/types";
 import { HttpRequest } from "@smithy/protocol-http";
 import { SignatureV4 } from "@smithy/signature-v4";
+import { getCredentialProvider } from "./credential-provider.js";
 import { parseRequest } from "./parse-request.js";
 
 export type SignRequestOptions = {
@@ -42,7 +42,7 @@ export async function signRequest(
 
   const service = options.service;
   const region = options.region || "us-east-1";
-  const credentials = options.credentials || defaultProvider();
+  const credentials = options.credentials || (await getCredentialProvider());
 
   const httpRequest = new HttpRequest({
     method,

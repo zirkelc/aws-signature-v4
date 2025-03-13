@@ -57,10 +57,13 @@
     "signaturev4"
   ],
   "dependencies": {
-    "@aws-crypto/sha256-js": "^5.2.0",
+    "@aws-crypto/sha256-universal": "^5.2.0",
     "@aws-sdk/credential-provider-node": "^3.609.0",
     "@smithy/protocol-http": "^4.0.3",
     "@smithy/signature-v4": "^3.1.2"
+  },
+  "browser": {
+    "@aws-sdk/credential-provider-node": false
   },
   "devDependencies": {
     "@aws-sdk/types": "^3.609.0"

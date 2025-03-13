@@ -10,7 +10,7 @@
     "build": "pnpm -r build",
     "lint": "pnpm biome check --write --no-errors-on-unmatched .",
     "release": "pnpm build && pnpm changeset:publish",
-    "changeset:init": "changeset init",
+    "changeset": "changeset",
     "changeset:version": "changeset version",
     "changeset:publish": "changeset publish"
   },
