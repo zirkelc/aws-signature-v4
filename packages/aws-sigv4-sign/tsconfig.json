@@ -1,8 +1,7 @@
 {
-  "extends": "@total-typescript/tsconfig/bundler/no-dom",
+  "extends": "@total-typescript/tsconfig/bundler/dom",
   "compilerOptions": {},
   "include": [
     "src/**/*.ts",
-    "vitest.*.ts",
   ],
 }
