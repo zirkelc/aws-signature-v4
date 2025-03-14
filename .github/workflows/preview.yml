@@ -1,0 +1,33 @@
+name: Preview
+
+on:
+  pull_request:
+
+permissions:
+  checks: write
+  id-token: write
+  contents: write
+  pull-requests: write
+
+jobs:
+  preview:
+    name: Preview
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - run: corepack enable
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build
+        run: pnpm build
+
+      - name: Publish Preview
+        run: pnpm dlx pkg-pr-new publish "aws-sigv4-fetch" "aws-sigv4-sign"
