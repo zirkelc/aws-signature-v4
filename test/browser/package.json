@@ -9,6 +9,6 @@
     "@aws-sdk/credential-provider-node": "^3.609.0",
     "aws-sigv4-fetch": "workspace:*",
     "aws-sigv4-sign": "workspace:*",
-    "happy-dom": "^17.4.4"
+    "jsdom": "^26.0.0"
   }
 }

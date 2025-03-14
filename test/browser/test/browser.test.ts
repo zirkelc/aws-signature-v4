@@ -1,5 +1,4 @@
 import { createSignedFetcher } from "aws-sigv4-fetch";
-import { signRequest } from "aws-sigv4-sign";
 import { describe, expect, it } from "vitest";
 
 const service = "iam";
@@ -7,7 +6,7 @@ const region = "us-east-1";
 const url = "https://iam.amazonaws.com/?Action=GetUser&Version=2010-05-08";
 
 describe("browser", () => {
-  it("should make request with signed headers", async () => {
+  it("should make request with provided credentials", async () => {
     // Arrange
     const { defaultProvider } = await import("@aws-sdk/credential-provider-node");
     const credentials = defaultProvider();
