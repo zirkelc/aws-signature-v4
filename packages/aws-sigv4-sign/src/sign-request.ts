@@ -1,4 +1,4 @@
-import { Sha256 } from "@aws-crypto/sha256-universal";
+import { Sha256 } from "@aws-crypto/sha256-js";
 import type { AwsCredentialIdentity, AwsCredentialIdentityProvider, Provider } from "@aws-sdk/types";
 import { HttpRequest } from "@smithy/protocol-http";
 import { SignatureV4 } from "@smithy/signature-v4";
