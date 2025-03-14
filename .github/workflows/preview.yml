@@ -26,7 +26,7 @@ jobs:
         run: pnpm build
 
       - name: Publish Preview
-        run: pnpm dlx pkg-pr-new publish ".packages/aws-sigv4-fetch" ".packages/aws-sigv4-sign" --json output.json --comment=off
+        run: pnpm dlx pkg-pr-new publish "./packages/aws-sigv4-fetch" "./packages/aws-sigv4-sign" --json output.json --comment=off
 
       - name: Post or update comment
         uses: actions/github-script@v6
