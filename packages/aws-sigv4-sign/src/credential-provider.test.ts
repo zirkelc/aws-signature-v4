@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { credentials } from "./__fixtures__.js";
-import { getCredentialProvider } from "./credential-provider.js";
+import { getDefaultCredentialProvider } from "./credential-provider.js";
 
 vi.mock("@aws-sdk/credential-provider-node", async () => {
   return {
@@ -21,13 +21,13 @@ beforeEach(() => {
   };
 });
 
-describe("getCredentialProvider", () => {
-  it("should attempt to load defaultProvider in node environment", async () => {
+describe("getDefaultCredentialProvider", () => {
+  it("should load default credentials provider in node environment", async () => {
     // Arrange
 
     // Act
-    const credentialProvider = await getCredentialProvider();
-    const resolvedCredentials = await credentialProvider();
+    const defaultCredentialProvider = await getDefaultCredentialProvider();
+    const resolvedCredentials = await defaultCredentialProvider();
 
     // Assert
     expect(resolvedCredentials).toEqual(credentials);
@@ -39,7 +39,7 @@ describe("getCredentialProvider", () => {
     global.document = {} as any;
 
     // Act
-    const result = getCredentialProvider();
+    const result = getDefaultCredentialProvider();
 
     // Assert
     await expect(result).rejects.toThrow("AWS credentials provider is not available in browser environments");

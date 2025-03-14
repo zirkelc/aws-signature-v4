@@ -1,4 +1,4 @@
-import type { AwsCredentialIdentity, Provider } from "@aws-sdk/types";
+import type { AwsCredentialIdentityProvider } from "@aws-sdk/types";
 
 /**
  * Determines if the code is running in a browser environment.
@@ -12,7 +12,7 @@ function isBrowser(): boolean {
  * In Node.js, it uses the default provider from @aws-sdk/credential-provider-node.
  * In a browser environment, it throws an error as credentials must be provided explicitly.
  */
-export async function getCredentialProvider(): Promise<Provider<AwsCredentialIdentity>> {
+export async function getDefaultCredentialProvider(): Promise<AwsCredentialIdentityProvider> {
   if (isBrowser())
     throw new Error(
       "AWS credentials provider is not available in browser environments. " +
