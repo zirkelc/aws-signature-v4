@@ -11,7 +11,7 @@ import {
 } from "./__fixtures__.js";
 import { type SignedFetcherOptions, createSignedFetcher } from "./create-signed-fetcher.js";
 
-const fetchMock = vi.fn(fetch);
+const fetchMock = vi.fn(fetch).mockResolvedValue(new Response());
 let signedFetch: typeof fetch;
 
 vi.useFakeTimers();
@@ -25,7 +25,7 @@ const options: SignedFetcherOptions = {
 };
 
 beforeEach(() => {
-  vi.resetAllMocks();
+  vi.clearAllMocks();
 
   signedFetch = createSignedFetcher(options);
 });
