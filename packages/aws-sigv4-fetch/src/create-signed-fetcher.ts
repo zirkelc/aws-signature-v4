@@ -1,4 +1,4 @@
-import type { AwsCredentialIdentity, Provider } from "@aws-sdk/types";
+import type { AwsCredentialIdentity, AwsCredentialIdentityProvider } from "@aws-sdk/types";
 import type { SignRequestOptions } from "aws-sigv4-sign";
 import { signRequest } from "aws-sigv4-sign";
 import { getFetchFn } from "./get-fetch.js";
@@ -6,7 +6,7 @@ import { getFetchFn } from "./get-fetch.js";
 export type SignedFetcherOptions = {
   service: string;
   region?: string;
-  credentials?: AwsCredentialIdentity | Provider<AwsCredentialIdentity>;
+  credentials?: AwsCredentialIdentity | AwsCredentialIdentityProvider;
   fetch?: typeof fetch;
 };
 

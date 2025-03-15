@@ -1,0 +1,29 @@
+name: Preview
+
+on:
+  pull_request:
+
+permissions:
+  checks: write
+  id-token: write
+  contents: write
+  pull-requests: write
+
+jobs:
+  preview:
+    name: Preview
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup and Install
+        id: install
+        uses: zirkelc/setup-and-install@v1
+        with:
+          node-version: 20
+
+      - name: Build
+        run: pnpm build
+
+      - name: Publish Preview
+        run: pnpm dlx pkg-pr-new publish --pnpm "./packages/aws-sigv4-fetch" "./packages/aws-sigv4-sign"

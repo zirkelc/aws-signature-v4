@@ -30,7 +30,7 @@ import { signRequest, SignRequestOptions } from 'aws-sigv4-sign';
 const options: SignRequestOptions = {
   service: 'lambda',         // required
   region: 'eu-west-1',       // optional (defaults to 'us-east-1')
-  credentials: {             // optional (defaults to credentials from environment)
+  credentials: {             // optional in Node.js (defaults to credentials from environment), required in browser
     accessKeyId: '...',
     secretAccessKey: '...',
   }
@@ -88,8 +88,55 @@ The `signRequest` function accepts the following options:
 | --- | --- | --- | --- |
 | `service` | `string` | Required | The `service` is **required** and must match the AWS service you are signing requests for. If it doesn't match, the request will fail with an error like: `Credential should be scoped to correct service: 'service'`. |
 | `region` | `string` | `us-east-1` | The `region` is **optional** and defaults to `us-east-1` if not provided. Some services like IAM are global and don't require a region. |
-| `credentials` | `object` | Read from environment | The `credentials` is **optional**. If not provided, the credentials will be retrieved from the environment by the package [`@aws-sdk/credential-provider-node`](https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/modules/_aws_sdk_credential_provider_node.html). |
+| `credentials` | `object` | Optional in Node.js, required in browser | The `credentials` is **optional** in Node.js environments where they will be retrieved from the environment using [`@aws-sdk/credential-provider-node`](https://www.npmjs.com/package/@aws-sdk/credential-provider-node). In browser environments, credentials are **required** and must be provided explicitly. |
 
+### Credentials
+
+Credential handling differs between Node.js and browser environments:
+
+#### Node.js
+In Node.js environments, credentials are **optional**. If not provided, they will be automatically loaded from the environment using [`@aws-sdk/credential-provider-node`](https://www.npmjs.com/package/@aws-sdk/credential-provider-node), which checks several sources in this order:
+- Environment variables exposed via process.env
+- SSO credentials from token cache
+- Web identity token credentials
+- Shared credentials and config ini files
+- The EC2/ECS Instance Metadata Service
+
+#### Browser
+In browser environments, credentials are **required** and must be provided explicitly for security reasons. The recommended method to provide credentials is to use Amazon Cognito Identity or web federated identity providers using [`@aws-sdk/credential-providers`](https://www.npmjs.com/package/@aws-sdk/credential-providers).
+
+> [!WARNING]
+> Never hardcode AWS credentials in browser applications. Hard coding credentials poses a risk of exposing your access key ID and secret access key.
+
+```ts
+import { fromCognitoIdentity } from "@aws-sdk/credential-providers"
+
+const signedRequest = await signRequest('https://mylambda.lambda-url.eu-west-1.on.aws/', {
+  service: 'lambda',
+  region: 'eu-west-1',
+  credentials: fromCognitoIdentity({
+    // Required. The unique identifier for the identity against which credentials
+    // will be issued.
+    identityId: "us-east-1:128d0a74-c82f-4553-916d-90053example",
+    // Optional. The ARN of the role to be assumed when multiple roles were received in the token
+    // from the identity provider.
+    customRoleArn: "arn:aws:iam::1234567890:role/MYAPP-CognitoIdentity",
+    // Optional. A set of name-value pairs that map provider names to provider tokens.
+    // Required when using identities associated with external identity providers such as Facebook.
+    logins: {
+      "graph.facebook.com": "FBTOKEN",
+      "www.amazon.com": "AMAZONTOKEN",
+      "accounts.google.com": "GOOGLETOKEN",
+      "api.twitter.com": "TWITTERTOKEN'",
+      "www.digits.com": "DIGITSTOKEN",
+    },
+    // Optional overrides. This is passed to an inner Cognito client
+    // instantiated to resolve the credentials. Region and profile
+    // are inherited from the upper client if present unless overridden.
+    clientConfig: {},
+  }),
+});
+```
 
 ## Examples
 

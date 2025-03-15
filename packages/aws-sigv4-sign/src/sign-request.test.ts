@@ -464,8 +464,23 @@ describe("signRequest", () => {
         "AWS4-HMAC-SHA256 Credential=foo/20000101/us-east-1/foo/aws4_request, SignedHeaders=host;x-amz-content-sha256;x-amz-date, Signature=67f6f44fa40ae4a9191fad86c952f4cd2a498ec6d86c57a66609d55cd219cc62",
       );
     });
+  });
 
-    it("should use default credentials", async () => {
+  describe("Credentials", () => {
+    const originalWindow = global.window;
+    const originalDocument = global.document;
+
+    beforeEach(() => {
+      global.window = undefined as any;
+      global.document = undefined as any;
+
+      return () => {
+        global.window = originalWindow;
+        global.document = originalDocument;
+      };
+    });
+
+    it("should use default node credentials provider", async () => {
       process.env.AWS_ACCESS_KEY_ID = "alpha";
       process.env.AWS_SECRET_ACCESS_KEY = "beta";
 
@@ -478,6 +493,15 @@ describe("signRequest", () => {
       expect(authorization).toBe(
         "AWS4-HMAC-SHA256 Credential=alpha/20000101/us-bar-1/foo/aws4_request, SignedHeaders=host;x-amz-content-sha256;x-amz-date, Signature=aa4d914f9488ac9c9ba7b7fdfd9b9e3d03f87fcaa78718e9bce640b5f134a934",
       );
+    });
+
+    it("should throw error if credentials are not provided in browser environment", async () => {
+      global.window = {} as any;
+      global.document = {} as any;
+
+      const signedRequest = signRequest(url, { ...options, credentials: undefined });
+
+      await expect(signedRequest).rejects.toThrow();
     });
   });
 });

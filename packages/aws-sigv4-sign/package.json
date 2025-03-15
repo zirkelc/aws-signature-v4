@@ -62,6 +62,9 @@
     "@smithy/protocol-http": "^4.0.3",
     "@smithy/signature-v4": "^3.1.2"
   },
+  "browser": {
+    "@aws-sdk/credential-provider-node": false
+  },
   "devDependencies": {
     "@aws-sdk/types": "^3.609.0"
   }

@@ -1,10 +1,7 @@
 {
-  "extends": "@total-typescript/tsconfig/bundler/no-dom",
+  "extends": "@total-typescript/tsconfig/bundler/dom",
   "compilerOptions": {},
   "include": [
     "src/**/*.ts",
-    "vitest.*.ts",
-    "../aws-sigv4-sign/src/parse-request.test.ts",
-    "../aws-sigv4-sign/src/parse-request.ts",
   ],
 }
