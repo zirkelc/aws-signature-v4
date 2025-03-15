@@ -73,11 +73,11 @@ The `createSignedFetcher` function accepts the following options:
 | `credentials` | `object` | Optional in Node.js, required in browser | The `credentials` is **optional** in Node.js environments where they will be retrieved from the environment using [`@aws-sdk/credential-provider-node`](https://www.npmjs.com/package/@aws-sdk/credential-provider-node). In browser environments, credentials are **required** and must be provided explicitly. |
 | `fetch` | `fetch` | Native `fetch` | The `fetch` function is **optional**. If not provided, the native `fetch` function will be used. |
 
-### Credentials
+#### Credentials
 
 Credential handling differs between Node.js and browser environments:
 
-#### Node.js
+##### Node.js
 In Node.js environments, credentials are **optional**. If not provided, they will be automatically loaded from the environment using [`@aws-sdk/credential-provider-node`](https://www.npmjs.com/package/@aws-sdk/credential-provider-node), which checks several sources in this order:
 - Environment variables exposed via process.env
 - SSO credentials from token cache
@@ -85,7 +85,7 @@ In Node.js environments, credentials are **optional**. If not provided, they wil
 - Shared credentials and config ini files
 - The EC2/ECS Instance Metadata Service
 
-#### Browser
+##### Browser
 In browser environments, credentials are **required** and must be provided explicitly for security reasons. The recommended method to provide credentials is to use Amazon Cognito Identity or web federated identity providers using [`@aws-sdk/credential-providers`](https://www.npmjs.com/package/@aws-sdk/credential-providers).
 
 > [!WARNING]
