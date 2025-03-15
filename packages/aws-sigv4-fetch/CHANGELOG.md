@@ -1,5 +1,16 @@
 # aws-sigv4-fetch
 
+## 4.4.0
+
+### Minor Changes
+
+- 2af3ec8: feat: support signing requests in the browser
+
+### Patch Changes
+
+- Updated dependencies [2af3ec8]
+  - aws-sigv4-sign@1.2.0
+
 ## 4.3.1
 
 ### Patch Changes
