@@ -1,6 +1,6 @@
 {
   "name": "aws-sigv4-sign",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "SignatureV4 sign function implemented with the official AWS SDK",
   "packageManager": "pnpm@9.3.0",
   "type": "module",
