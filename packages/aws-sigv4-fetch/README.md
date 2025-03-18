@@ -34,6 +34,7 @@ const options: SignedFetcherOptions = {
   credentials: {             // optional in Node.js (defaults to credentials from environment), required in browser
     accessKeyId: '...',
     secretAccessKey: '...',
+    sessionToken: '...',
   }
   fetch: fetch,              // optional (defaults to native fetch)
 };
@@ -70,12 +71,12 @@ The `createSignedFetcher` function accepts the following options:
 | --- | --- | --- | --- |
 | `service` | `string` | Required | The `service` is **required** and must match the AWS service you are signing requests for. If it doesn't match, the request will fail with an error like: `Credential should be scoped to correct service: 'service'`. |
 | `region` | `string` | `us-east-1` | The `region` is **optional** and defaults to `us-east-1` if not provided. Some services like IAM are global and don't require a region. |
-| `credentials` | `object` | Optional in Node.js, required in browser | The `credentials` is **optional** in Node.js environments where they will be retrieved from the environment using [`@aws-sdk/credential-provider-node`](https://www.npmjs.com/package/@aws-sdk/credential-provider-node). In browser environments, credentials are **required** and must be provided explicitly. |
+| `credentials` | [`AwsCredentialIdentity`](https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/Package/-smithy-types/Interface/AwsCredentialIdentity/) | Optional in Node.js, required in browser | The `credentials` is **optional** in Node.js environments where they will be retrieved from the environment using [`@aws-sdk/credential-provider-node`](https://www.npmjs.com/package/@aws-sdk/credential-provider-node). In browser environments, credentials are **required** and must be provided explicitly. |
 | `fetch` | `fetch` | Native `fetch` | The `fetch` function is **optional**. If not provided, the native `fetch` function will be used. |
 
 #### Credentials
 
-Credential handling differs between Node.js and browser environments:
+The `credentials` have type [`AwsCredentialIdentity`](https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/Package/-smithy-types/Interface/AwsCredentialIdentity/) and consist of an `accessKeyId`, `secretAccessKey` and optionally a `sessionToken`. Credential handling differs between Node.js and browser environments:
 
 ##### Node.js
 In Node.js environments, credentials are **optional**. If not provided, they will be automatically loaded from the environment using [`@aws-sdk/credential-provider-node`](https://www.npmjs.com/package/@aws-sdk/credential-provider-node), which checks several sources in this order:

@@ -6,12 +6,60 @@ import { getDefaultCredentialProvider } from "./credential-provider.js";
 import { parseRequest } from "./parse-request.js";
 
 export type SignRequestOptions = {
+  /**
+   * The AWS service to sign requests for, e.g. `execute-api` for AWS API Gateway or `lambda` for Lambda Function URLs.
+   */
   service: string;
+  /**
+   * The AWS region to sign requests for, e.g. `us-east-1` or `eu-west-2`.
+   * Defaults to `us-east-1` if not provided.
+   */
   region?: string;
+  /**
+   * The AWS credentials to use when signing requests.
+   * Optional in Node.js environments where they will be retrieved from the environment using [`@aws-sdk/credential-provider-node`](https://www.npmjs.com/package/@aws-sdk/credential-provider-node).
+   * In browser environments, credentials are **required** and must be provided explicitly.
+   *
+   * @see {@link https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/Package/-smithy-types/Interface/AwsCredentialIdentity/ | AwsCredentialIdentity}
+   * @see {@link https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/Package/-smithy-types/Interface/AwsCredentialIdentityProvider/ | AwsCredentialIdentityProvider}
+   */
   credentials?: AwsCredentialIdentity | AwsCredentialIdentityProvider;
 };
 
+/**
+ * Signs a request using AWS Signature V4 and returns a `Request` object.
+ *
+ * @example
+ * ```ts
+ * const signedRequest = await signRequest('https://mylambda.lambda-url.eu-west-1.on.aws/', {
+ *   service: 'lambda',
+ *   region: 'eu-west-1'
+ * });
+ *
+ * const response = await fetch(signedRequest);
+ * ```
+ */
 export function signRequest(input: string | Request | URL, options: SignRequestOptions): Promise<Request>;
+/**
+ * Signs a request using AWS Signature V4 and returns a `Request` object.
+ *
+ * @example
+ * ```ts
+ * const signedRequest = await signRequest('https://mylambda.lambda-url.eu-west-1.on.aws/',
+ *  {
+ *    method: 'POST',
+ *    body: JSON.stringify({ a: 1 }),
+ *    headers: { 'Content-Type': 'application/json' }
+ *  },
+ *  {
+ *    service: 'lambda',
+ *    region: 'eu-west-1'
+ *  }
+ * );
+ *
+ * const response = await fetch(signedRequest);
+ * ```
+ */
 export function signRequest(
   input: string | Request | URL,
   init: RequestInit,
