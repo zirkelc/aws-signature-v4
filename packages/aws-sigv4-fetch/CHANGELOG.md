@@ -1,5 +1,13 @@
 # aws-sigv4-fetch
 
+## 4.4.1
+
+### Patch Changes
+
+- 878eafe: fix: signature is wrong if url has duplicate query param keys
+- Updated dependencies [878eafe]
+  - aws-sigv4-sign@1.2.1
+
 ## 4.4.0
 
 ### Minor Changes

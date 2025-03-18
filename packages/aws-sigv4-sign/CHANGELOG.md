@@ -1,5 +1,11 @@
 # aws-sigv4-sign
 
+## 1.2.1
+
+### Patch Changes
+
+- 878eafe: fix: signature is wrong if url has duplicate query param keys
+
 ## 1.2.0
 
 ### Minor Changes
