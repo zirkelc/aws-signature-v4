@@ -311,7 +311,7 @@
   "CDKMetadata": {
    "Type": "AWS::CDK::Metadata",
    "Properties": {
-    "Analytics": "v2:deflate64:H4sIAAAAAAAA/1WMyw6CMBBFv4V9GQUWrlG3RgMfYMYyYnm0hE5FQvh3Q2oUV3POzZ0bQ7RLIA5wsKEs6rBRN5hyRlkLHOx1wk6VyDTgCFNGltNOicNdrzCV0jjN4khdY8aWNC/pynLGkpbMQ0bWuF7SHu1PPpueL715jV87ET9MsRQ8zUJhC1NmGv9lGprnv6Gz487xenIW2hQEld084y1ECURBZZUKe6dZtQSZv28BnB8ZDQEAAA=="
+    "Analytics": "v2:deflate64:H4sIAAAAAAAA/1WMyw6CMBBFv4V9GQVduEXdGg18gBnLiOXREjoVCeHfDalRXM05N3duDNFuC+sAexvKvAprdYMxY5SVwN5eR2xVgUw9DjCmZDlplTjc9QITKY3TLI7U1mZoSPOcLixjLGjOPKRkjesk7dH+5LPp+dKZ1/C1E/HD5HPB0yQUNjCmpvZfpqZp+hs6O24dT0KbnKC0q2e8hmgDUVBapcLOaVYNQervG0yMsHMBAQAA"
    },
    "Metadata": {
     "aws:cdk:path": "ApiGatewayTestStack/CDKMetadata/Default"

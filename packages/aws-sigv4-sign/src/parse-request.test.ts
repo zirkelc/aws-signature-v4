@@ -1,6 +1,6 @@
 import "cross-fetch/polyfill";
 import { describe, expect, it } from "vitest";
-import { url } from "../../aws-sigv4-fetch/src/__fixtures__.js";
+import { url } from "./fixtures.js";
 import { parseRequest } from "./parse-request.js";
 
 describe("parseRequest", () => {

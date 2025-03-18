@@ -1,7 +1,7 @@
 {
-  "version": "38.0.1",
+  "version": "40.0.0",
   "files": {
-    "a3fa5648bcd67c28128e523d226652e9123e873b042dfd40ebd84c77924ffe66": {
+    "eb9e2a0468c84e71c24a6df8f5621fdabf077a7051a0cfdc1d7d887c04f5f68b": {
       "source": {
         "path": "ApiGatewayTestStack.template.json",
         "packaging": "file"
@@ -9,7 +9,7 @@
       "destinations": {
         "current_account-us-east-1": {
           "bucketName": "cdk-hnb659fds-assets-${AWS::AccountId}-us-east-1",
-          "objectKey": "a3fa5648bcd67c28128e523d226652e9123e873b042dfd40ebd84c77924ffe66.json",
+          "objectKey": "eb9e2a0468c84e71c24a6df8f5621fdabf077a7051a0cfdc1d7d887c04f5f68b.json",
           "region": "us-east-1",
           "assumeRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-file-publishing-role-${AWS::AccountId}-us-east-1"
         }
