@@ -75,7 +75,7 @@
   "CDKMetadata": {
    "Type": "AWS::CDK::Metadata",
    "Properties": {
-    "Analytics": "v2:deflate64:H4sIAAAAAAAA/z3JyQ7CIBSF4WfpHq5CFz6AiVsTTNfmFjChZTAMdkF4d0MdVv/Jdziw0wh8wC1RqVZqzQz1llGuBLd0rxbdrBDqpXiZTfDk/PD//RtTtN2naBsx6KCKYHWX3taI0CmUKHe6lvwseT+/2ogPSsOSDi9+BDYCG5ZkDI3FZ+M0iE/fC17ApaoAAAA="
+    "Analytics": "v2:deflate64:H4sIAAAAAAAA/z3IuwrCMBSA4Wfpnh6b6uAuuAqRznKaRDhtLiUXO4S8u0TR6f/5RuDnEwwd7rGXau0NzVDuCeXKcI+PYtDOCqFcs5OJvGOXp/v/b6Zgmk/BVEZooQhvdJPWWpnQ0ecgP3TLacupMueVhiUeXuMA/Ai8WyJRH7JLZDWIb992fysGngAAAA=="
    },
    "Metadata": {
     "aws:cdk:path": "LambdaTestStack/CDKMetadata/Default"

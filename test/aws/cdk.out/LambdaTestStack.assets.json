@@ -1,7 +1,7 @@
 {
-  "version": "38.0.1",
+  "version": "40.0.0",
   "files": {
-    "a30dfe65d7e4ee160b6c62251a997c0b25392e14e6d7ca585ef67515afc24df9": {
+    "65e16bc1beafb206b437eb9ad5acb6ca02ff8488a0d682fc0f9232e566b7603b": {
       "source": {
         "path": "LambdaTestStack.template.json",
         "packaging": "file"
@@ -9,7 +9,7 @@
       "destinations": {
         "current_account-us-east-1": {
           "bucketName": "cdk-hnb659fds-assets-${AWS::AccountId}-us-east-1",
-          "objectKey": "a30dfe65d7e4ee160b6c62251a997c0b25392e14e6d7ca585ef67515afc24df9.json",
+          "objectKey": "65e16bc1beafb206b437eb9ad5acb6ca02ff8488a0d682fc0f9232e566b7603b.json",
           "region": "us-east-1",
           "assumeRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-file-publishing-role-${AWS::AccountId}-us-east-1"
         }

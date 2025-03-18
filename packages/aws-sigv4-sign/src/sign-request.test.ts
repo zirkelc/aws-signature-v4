@@ -1,14 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import {
-  url,
-  bodyFixture,
-  credentials,
-  date,
-  getSignedHeaders,
-  headersSigned,
-  region,
-  service,
-} from "./__fixtures__.js";
+import { url, bodyFixture, credentials, date, getSignedHeaders, headersSigned, region, service } from "./fixtures.js";
 import { type SignRequestOptions, signRequest } from "./sign-request.js";
 
 declare global {
@@ -82,11 +73,12 @@ describe("signRequest", () => {
   });
 
   describe("POST", () => {
+    const method = "POST";
     describe("Body: undefined", () => {
       const body = undefined;
 
       it("should fetch with string", async () => {
-        const signedRequest = await signRequest(url, { method: "POST", body }, options);
+        const signedRequest = await signRequest(url, { method, body }, options);
 
         expect(signedRequest.url).toEqual(url);
         expect(signedRequest.method).toEqual("POST");
@@ -102,7 +94,7 @@ describe("signRequest", () => {
       });
 
       it("should fetch with URL", async () => {
-        const signedRequest = await signRequest(new URL(url), { method: "POST", body }, options);
+        const signedRequest = await signRequest(new URL(url), { method, body }, options);
 
         expect(signedRequest.url).toEqual(url);
         expect(signedRequest.method).toEqual("POST");
@@ -116,7 +108,7 @@ describe("signRequest", () => {
       });
 
       it("should fetch with Request", async () => {
-        const signedRequest = await signRequest(new Request(url, { method: "POST", body }), options);
+        const signedRequest = await signRequest(new Request(url, { method, body }), options);
 
         expect(signedRequest.url).toEqual(url);
         expect(signedRequest.method).toEqual("POST");
@@ -134,7 +126,7 @@ describe("signRequest", () => {
       const { body } = bodyFixture.string;
 
       it("should fetch with string", async () => {
-        const signedRequest = await signRequest(url, { method: "POST", body }, options);
+        const signedRequest = await signRequest(url, { method, body }, options);
 
         expect(signedRequest.url).toEqual(url);
         expect(signedRequest.method).toEqual("POST");
@@ -152,7 +144,7 @@ describe("signRequest", () => {
       });
 
       it("should fetch with URL", async () => {
-        const signedRequest = await signRequest(new URL(url), { method: "POST", body }, options);
+        const signedRequest = await signRequest(new URL(url), { method, body }, options);
 
         expect(signedRequest.url).toEqual(url);
         expect(signedRequest.method).toEqual("POST");
@@ -168,7 +160,7 @@ describe("signRequest", () => {
       });
 
       it("should fetch with Request", async () => {
-        const signedRequest = await signRequest(new Request(url, { method: "POST", body }), options);
+        const signedRequest = await signRequest(new Request(url, { method, body }), options);
 
         expect(signedRequest.url).toEqual(url);
         expect(signedRequest.method).toEqual("POST");
@@ -188,7 +180,7 @@ describe("signRequest", () => {
       const { body } = bodyFixture.urlSearchParams;
 
       it("should fetch with string", async () => {
-        const signedRequest = await signRequest(url, { method: "POST", body }, options);
+        const signedRequest = await signRequest(url, { method, body }, options);
 
         expect(signedRequest.url).toEqual(url);
         expect(signedRequest.method).toEqual("POST");
@@ -204,7 +196,7 @@ describe("signRequest", () => {
       });
 
       it("should fetch with URL", async () => {
-        const signedRequest = await signRequest(new URL(url), { method: "POST", body }, options);
+        const signedRequest = await signRequest(new URL(url), { method, body }, options);
 
         expect(signedRequest.url).toEqual(url);
         expect(signedRequest.method).toEqual("POST");
@@ -220,7 +212,7 @@ describe("signRequest", () => {
       });
 
       it("should fetch with Request", async () => {
-        const signedRequest = await signRequest(new Request(url, { method: "POST", body }), options);
+        const signedRequest = await signRequest(new Request(url, { method, body }), options);
 
         expect(signedRequest.url).toEqual(url);
         expect(signedRequest.method).toEqual("POST");
@@ -240,7 +232,7 @@ describe("signRequest", () => {
       const { body, init } = bodyFixture.formData;
 
       it("should fetch with string", async () => {
-        const signedRequest = await signRequest(url, { method: "POST", ...init }, options);
+        const signedRequest = await signRequest(url, { method, ...init }, options);
 
         expect(signedRequest.url).toEqual(url);
         expect(signedRequest.method).toEqual("POST");
@@ -256,7 +248,7 @@ describe("signRequest", () => {
       });
 
       it("should fetch with URL", async () => {
-        const signedRequest = await signRequest(new URL(url), { method: "POST", ...init }, options);
+        const signedRequest = await signRequest(new URL(url), { method, ...init }, options);
 
         expect(signedRequest.url).toEqual(url);
         expect(signedRequest.method).toEqual("POST");
@@ -272,7 +264,7 @@ describe("signRequest", () => {
       });
 
       it("should fetch with Request", async () => {
-        const signedRequest = await signRequest(new Request(url, { method: "POST", ...init }), options);
+        const signedRequest = await signRequest(new Request(url, { method, ...init }), options);
 
         expect(signedRequest.url).toEqual(url);
         expect(signedRequest.method).toEqual("POST");
@@ -292,7 +284,7 @@ describe("signRequest", () => {
       const { body } = bodyFixture.blob;
 
       it("should fetch with string", async () => {
-        const signedRequest = await signRequest(url, { method: "POST", body }, options);
+        const signedRequest = await signRequest(url, { method, body }, options);
 
         expect(signedRequest.url).toEqual(url);
         expect(signedRequest.method).toEqual("POST");
@@ -308,7 +300,7 @@ describe("signRequest", () => {
       });
 
       it("should fetch with URL", async () => {
-        const signedRequest = await signRequest(new URL(url), { method: "POST", body }, options);
+        const signedRequest = await signRequest(new URL(url), { method, body }, options);
 
         expect(signedRequest.url).toEqual(url);
         expect(signedRequest.method).toEqual("POST");
@@ -324,7 +316,7 @@ describe("signRequest", () => {
       });
 
       it("should fetch with Request", async () => {
-        const signedRequest = await signRequest(new Request(url, { method: "POST", body }), options);
+        const signedRequest = await signRequest(new Request(url, { method, body }), options);
 
         expect(signedRequest.url).toEqual(url);
         expect(signedRequest.method).toEqual("POST");
@@ -345,7 +337,7 @@ describe("signRequest", () => {
       const { body } = bodyFixture.arrayBuffer;
 
       it("should fetch with string", async () => {
-        const signedRequest = await signRequest(url, { method: "POST", body }, options);
+        const signedRequest = await signRequest(url, { method, body }, options);
 
         expect(signedRequest.url).toEqual(url);
         expect(signedRequest.method).toEqual("POST");
@@ -361,7 +353,7 @@ describe("signRequest", () => {
       });
 
       it("should fetch with URL", async () => {
-        const signedRequest = await signRequest(new URL(url), { method: "POST", body }, options);
+        const signedRequest = await signRequest(new URL(url), { method, body }, options);
 
         expect(signedRequest.url).toEqual(url);
         expect(signedRequest.method).toEqual("POST");
@@ -377,7 +369,7 @@ describe("signRequest", () => {
       });
 
       it("should fetch with Request", async () => {
-        const signedRequest = await signRequest(new Request(url, { method: "POST", body }), options);
+        const signedRequest = await signRequest(new Request(url, { method, body }), options);
 
         expect(signedRequest.url).toEqual(url);
         expect(signedRequest.method).toEqual("POST");

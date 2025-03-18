@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { credentials } from "./__fixtures__.js";
 import { getDefaultCredentialProvider } from "./credential-provider.js";
+import { credentials } from "./fixtures.js";
 
 vi.mock("@aws-sdk/credential-provider-node", async () => {
   return {

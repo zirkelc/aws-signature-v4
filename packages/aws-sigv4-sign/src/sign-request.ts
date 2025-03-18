@@ -1,5 +1,5 @@
 import { Sha256 } from "@aws-crypto/sha256-js";
-import type { AwsCredentialIdentity, AwsCredentialIdentityProvider, Provider } from "@aws-sdk/types";
+import type { AwsCredentialIdentity, AwsCredentialIdentityProvider, Provider, QueryParameterBag } from "@aws-sdk/types";
 import { HttpRequest } from "@smithy/protocol-http";
 import { SignatureV4 } from "@smithy/signature-v4";
 import { getDefaultCredentialProvider } from "./credential-provider.js";
@@ -55,7 +55,15 @@ export async function signRequest(
     username: url.username,
     password: url.password,
     fragment: url.hash,
-    query: Object.fromEntries(url.searchParams.entries()),
+    // Query paramaters accept multiple values per key
+    query: Array.from(url.searchParams.entries()).reduce<QueryParameterBag>((acc, [key, value]) => {
+      if (Array.isArray(acc[key])) {
+        acc[key].push(value);
+      } else {
+        acc[key] = [value];
+      }
+      return acc;
+    }, {}),
   });
 
   const signer = new SignatureV4({
