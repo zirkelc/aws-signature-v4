@@ -94,10 +94,5 @@ const result = await client.request(query, variables);
 
 Go to the docs of [aws-sigv4-fetch](./packages/aws-sigv4-fetch/README.md) or [aws-sigv4-sign](./packages/aws-sigv4-sign/README.md) for more information.
 
-## Resources
-- [Sign GraphQL Request with AWS IAM and Signature V4](https://dev.to/zirkelc/sign-graphql-request-with-aws-iam-and-signature-v4-2il6)
-- [Amplify Signing a request from Lambda](https://docs.amplify.aws/lib/graphqlapi/graphql-from-nodejs/q/platform/js/#signing-a-request-from-lambda)
-- [Signing HTTP requests to Amazon OpenSearch Service](https://docs.aws.amazon.com/opensearch-service/latest/developerguide/request-signing.html#request-signing-node)
-
 ## License
 MIT
