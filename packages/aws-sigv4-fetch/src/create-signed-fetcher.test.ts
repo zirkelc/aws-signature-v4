@@ -1,6 +1,6 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
-import { type SignedFetcherOptions, createSignedFetcher } from "./create-signed-fetcher.js";
-import { url, bodyFixture, credentials, date, getSignedHeaders, headersSigned, region, service } from "./fixtures.js";
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { createSignedFetcher, type SignedFetcherOptions } from './create-signed-fetcher.js';
+import { bodyFixture, credentials, date, getSignedHeaders, headersSigned, region, service, url } from './fixtures.js';
 
 const fetchMock = vi.fn(fetch).mockResolvedValue(new Response());
 let signedFetch: typeof fetch;
@@ -21,16 +21,16 @@ beforeEach(() => {
   signedFetch = createSignedFetcher(options);
 });
 
-describe("createSignedFetcher", () => {
-  describe("GET", () => {
-    it("should fetch with string", async () => {
+describe('createSignedFetcher', () => {
+  describe('GET', () => {
+    it('should fetch with string', async () => {
       await signedFetch(url);
 
       expect(fetchMock).toHaveBeenCalled();
       const [request] = fetchMock.mock.calls[0] as [Request];
 
       expect(request.url).toEqual(url);
-      expect(request.method).toEqual("GET");
+      expect(request.method).toEqual('GET');
       expect(request.body).toEqual(null);
 
       const signedHeaders = getSignedHeaders(request);
@@ -40,14 +40,14 @@ describe("createSignedFetcher", () => {
       );
     });
 
-    it("should fetch with URL", async () => {
+    it('should fetch with URL', async () => {
       await signedFetch(new URL(url));
 
       expect(fetchMock).toHaveBeenCalled();
       const [request] = fetchMock.mock.calls[0] as [Request];
 
       expect(request.url).toEqual(url);
-      expect(request.method).toEqual("GET");
+      expect(request.method).toEqual('GET');
       expect(request.body).toEqual(null);
 
       const signedHeaders = getSignedHeaders(request);
@@ -57,14 +57,14 @@ describe("createSignedFetcher", () => {
       );
     });
 
-    it("should fetch with Request", async () => {
+    it('should fetch with Request', async () => {
       await signedFetch(new Request(url));
 
       expect(fetchMock).toHaveBeenCalled();
       const [request] = fetchMock.mock.calls[0] as [Request];
 
       expect(request.url).toEqual(url);
-      expect(request.method).toEqual("GET");
+      expect(request.method).toEqual('GET');
       expect(request.body).toEqual(null);
 
       const signedHeaders = getSignedHeaders(request);
@@ -75,17 +75,17 @@ describe("createSignedFetcher", () => {
     });
   });
 
-  describe("POST", () => {
-    describe("Body: undefined", () => {
+  describe('POST', () => {
+    describe('Body: undefined', () => {
       const body = undefined;
 
-      it("should fetch with string", async () => {
-        await signedFetch(url, { method: "POST", body });
+      it('should fetch with string', async () => {
+        await signedFetch(url, { method: 'POST', body });
 
         expect(fetchMock).toHaveBeenCalled();
         const [request] = fetchMock.mock.calls[0] as [Request];
         expect(request.url).toEqual(url);
-        expect(request.method).toEqual("POST");
+        expect(request.method).toEqual('POST');
         expect(request.body).toEqual(null);
 
         const signedHeaders = getSignedHeaders(request);
@@ -95,13 +95,13 @@ describe("createSignedFetcher", () => {
         );
       });
 
-      it("should fetch with URL", async () => {
-        await signedFetch(new URL(url), { method: "POST", body });
+      it('should fetch with URL', async () => {
+        await signedFetch(new URL(url), { method: 'POST', body });
 
         expect(fetchMock).toHaveBeenCalled();
         const [request] = fetchMock.mock.calls[0] as [Request];
         expect(request.url).toEqual(url);
-        expect(request.method).toEqual("POST");
+        expect(request.method).toEqual('POST');
         expect(request.body).toEqual(null);
 
         const signedHeaders = getSignedHeaders(request);
@@ -111,13 +111,13 @@ describe("createSignedFetcher", () => {
         );
       });
 
-      it("should fetch with Request", async () => {
-        await signedFetch(new Request(url, { method: "POST", body }));
+      it('should fetch with Request', async () => {
+        await signedFetch(new Request(url, { method: 'POST', body }));
 
         expect(fetchMock).toHaveBeenCalled();
         const [request] = fetchMock.mock.calls[0] as [Request];
         expect(request.url).toEqual(url);
-        expect(request.method).toEqual("POST");
+        expect(request.method).toEqual('POST');
         expect(request.body).toEqual(null);
 
         const signedHeaders = getSignedHeaders(request);
@@ -131,13 +131,13 @@ describe("createSignedFetcher", () => {
     describe(`Body: String("foo")`, () => {
       const { body } = bodyFixture.string;
 
-      it("should fetch with string", async () => {
-        await signedFetch(url, { method: "POST", body });
+      it('should fetch with string', async () => {
+        await signedFetch(url, { method: 'POST', body });
 
         expect(fetchMock).toHaveBeenCalled();
         const [request] = fetchMock.mock.calls[0] as [Request];
         expect(request.url).toEqual(url);
-        expect(request.method).toEqual("POST");
+        expect(request.method).toEqual('POST');
 
         const text = await request.text();
         expect(text).toEqual(body);
@@ -149,13 +149,13 @@ describe("createSignedFetcher", () => {
         );
       });
 
-      it("should fetch with URL", async () => {
-        await signedFetch(new URL(url), { method: "POST", body });
+      it('should fetch with URL', async () => {
+        await signedFetch(new URL(url), { method: 'POST', body });
 
         expect(fetchMock).toHaveBeenCalled();
         const [request] = fetchMock.mock.calls[0] as [Request];
         expect(request.url).toEqual(url);
-        expect(request.method).toEqual("POST");
+        expect(request.method).toEqual('POST');
 
         const text = await request.text();
         expect(text).toEqual(body);
@@ -167,13 +167,13 @@ describe("createSignedFetcher", () => {
         );
       });
 
-      it("should fetch with Request", async () => {
-        await signedFetch(new Request(url, { method: "POST", body }));
+      it('should fetch with Request', async () => {
+        await signedFetch(new Request(url, { method: 'POST', body }));
 
         expect(fetchMock).toHaveBeenCalled();
         const [request] = fetchMock.mock.calls[0] as [Request];
         expect(request.url).toEqual(url);
-        expect(request.method).toEqual("POST");
+        expect(request.method).toEqual('POST');
 
         const text = await request.text();
         expect(text).toEqual(body);
@@ -189,13 +189,13 @@ describe("createSignedFetcher", () => {
     describe(`Body: URLSearchParams({ foo: "bar" })`, () => {
       const { body } = bodyFixture.urlSearchParams;
 
-      it("should fetch with string", async () => {
-        await signedFetch(url, { method: "POST", body });
+      it('should fetch with string', async () => {
+        await signedFetch(url, { method: 'POST', body });
 
         expect(fetchMock).toHaveBeenCalled();
         const [request] = fetchMock.mock.calls[0] as [Request];
         expect(request.url).toEqual(url);
-        expect(request.method).toEqual("POST");
+        expect(request.method).toEqual('POST');
 
         const text = await request.text();
         expect(text).toEqual(body.toString());
@@ -207,13 +207,13 @@ describe("createSignedFetcher", () => {
         );
       });
 
-      it("should fetch with URL", async () => {
-        await signedFetch(new URL(url), { method: "POST", body });
+      it('should fetch with URL', async () => {
+        await signedFetch(new URL(url), { method: 'POST', body });
 
         expect(fetchMock).toHaveBeenCalled();
         const [request] = fetchMock.mock.calls[0] as [Request];
         expect(request.url).toEqual(url);
-        expect(request.method).toEqual("POST");
+        expect(request.method).toEqual('POST');
 
         const text = await request.text();
         expect(text).toEqual(body.toString());
@@ -225,13 +225,13 @@ describe("createSignedFetcher", () => {
         );
       });
 
-      it("should fetch with Request", async () => {
-        await signedFetch(new Request(url, { method: "POST", body }));
+      it('should fetch with Request', async () => {
+        await signedFetch(new Request(url, { method: 'POST', body }));
 
         expect(fetchMock).toHaveBeenCalled();
         const [request] = fetchMock.mock.calls[0] as [Request];
         expect(request.url).toEqual(url);
-        expect(request.method).toEqual("POST");
+        expect(request.method).toEqual('POST');
 
         const text = await request.text();
         expect(text).toEqual(body.toString());
@@ -247,13 +247,13 @@ describe("createSignedFetcher", () => {
     describe(`Body: FormData({ foo: "bar" })`, () => {
       const { body, init } = bodyFixture.formData;
 
-      it("should fetch with string", async () => {
-        await signedFetch(url, { method: "POST", ...init });
+      it('should fetch with string', async () => {
+        await signedFetch(url, { method: 'POST', ...init });
 
         expect(fetchMock).toHaveBeenCalled();
         const [request] = fetchMock.mock.calls[0] as [Request];
         expect(request.url).toEqual(url);
-        expect(request.method).toEqual("POST");
+        expect(request.method).toEqual('POST');
 
         const formData = await request.formData();
         expect(formData).toEqual(body);
@@ -265,13 +265,13 @@ describe("createSignedFetcher", () => {
         );
       });
 
-      it("should fetch with URL", async () => {
-        await signedFetch(new URL(url), { method: "POST", ...init });
+      it('should fetch with URL', async () => {
+        await signedFetch(new URL(url), { method: 'POST', ...init });
 
         expect(fetchMock).toHaveBeenCalled();
         const [request] = fetchMock.mock.calls[0] as [Request];
         expect(request.url).toEqual(url);
-        expect(request.method).toEqual("POST");
+        expect(request.method).toEqual('POST');
 
         const formData = await request.formData();
         expect(formData).toEqual(body);
@@ -283,13 +283,13 @@ describe("createSignedFetcher", () => {
         );
       });
 
-      it("should fetch with Request", async () => {
-        await signedFetch(new Request(url, { method: "POST", ...init }));
+      it('should fetch with Request', async () => {
+        await signedFetch(new Request(url, { method: 'POST', ...init }));
 
         expect(fetchMock).toHaveBeenCalled();
         const [request] = fetchMock.mock.calls[0] as [Request];
         expect(request.url).toEqual(url);
-        expect(request.method).toEqual("POST");
+        expect(request.method).toEqual('POST');
 
         const formData = await request.formData();
         expect(formData).toEqual(body);
@@ -305,13 +305,13 @@ describe("createSignedFetcher", () => {
     describe(`Body: Blob(["foo"])`, () => {
       const { body } = bodyFixture.blob;
 
-      it("should fetch with string", async () => {
-        await signedFetch(url, { method: "POST", body });
+      it('should fetch with string', async () => {
+        await signedFetch(url, { method: 'POST', body });
 
         expect(fetchMock).toHaveBeenCalled();
         const [request] = fetchMock.mock.calls[0] as [Request];
         expect(request.url).toEqual(url);
-        expect(request.method).toEqual("POST");
+        expect(request.method).toEqual('POST');
 
         const blob = await request.blob();
         expect(blob).toEqual(body);
@@ -323,13 +323,13 @@ describe("createSignedFetcher", () => {
         );
       });
 
-      it("should fetch with URL", async () => {
-        await signedFetch(new URL(url), { method: "POST", body });
+      it('should fetch with URL', async () => {
+        await signedFetch(new URL(url), { method: 'POST', body });
 
         expect(fetchMock).toHaveBeenCalled();
         const [request] = fetchMock.mock.calls[0] as [Request];
         expect(request.url).toEqual(url);
-        expect(request.method).toEqual("POST");
+        expect(request.method).toEqual('POST');
 
         const blob = await request.blob();
         expect(blob).toEqual(body);
@@ -341,13 +341,13 @@ describe("createSignedFetcher", () => {
         );
       });
 
-      it("should fetch with Request", async () => {
-        await signedFetch(new Request(url, { method: "POST", body }));
+      it('should fetch with Request', async () => {
+        await signedFetch(new Request(url, { method: 'POST', body }));
 
         expect(fetchMock).toHaveBeenCalled();
         const [request] = fetchMock.mock.calls[0] as [Request];
         expect(request.url).toEqual(url);
-        expect(request.method).toEqual("POST");
+        expect(request.method).toEqual('POST');
 
         const blob = await request.blob();
         expect(blob).toEqual(body);
@@ -360,16 +360,16 @@ describe("createSignedFetcher", () => {
       });
     });
 
-    describe("Body: Uint8Array([0xde, 0xad, 0xbe, 0xef])", () => {
+    describe('Body: Uint8Array([0xde, 0xad, 0xbe, 0xef])', () => {
       const { body } = bodyFixture.arrayBuffer;
 
-      it("should fetch with string", async () => {
-        await signedFetch(url, { method: "POST", body });
+      it('should fetch with string', async () => {
+        await signedFetch(url, { method: 'POST', body });
 
         expect(fetchMock).toHaveBeenCalled();
         const [request] = fetchMock.mock.calls[0] as [Request];
         expect(request.url).toEqual(url);
-        expect(request.method).toEqual("POST");
+        expect(request.method).toEqual('POST');
 
         const arrayBuffer = await request.arrayBuffer();
         expect(arrayBuffer).toEqual(new Uint8Array([0xde, 0xad, 0xbe, 0xef]).buffer);
@@ -381,13 +381,13 @@ describe("createSignedFetcher", () => {
         );
       });
 
-      it("should fetch with URL", async () => {
-        await signedFetch(new URL(url), { method: "POST", body });
+      it('should fetch with URL', async () => {
+        await signedFetch(new URL(url), { method: 'POST', body });
 
         expect(fetchMock).toHaveBeenCalled();
         const [request] = fetchMock.mock.calls[0] as [Request];
         expect(request.url).toEqual(url);
-        expect(request.method).toEqual("POST");
+        expect(request.method).toEqual('POST');
 
         const arrayBuffer = await request.arrayBuffer();
         expect(arrayBuffer).toEqual(new Uint8Array([0xde, 0xad, 0xbe, 0xef]).buffer);
@@ -401,11 +401,11 @@ describe("createSignedFetcher", () => {
     });
   });
 
-  it("should fetch with additional headers", async () => {
+  it('should fetch with additional headers', async () => {
     await signedFetch(url, {
       headers: {
-        "x-amz-test-header": "test-value",
-        "x-api-key": "test-api-key",
+        'x-amz-test-header': 'test-value',
+        'x-api-key': 'test-api-key',
       },
     });
 
@@ -413,13 +413,13 @@ describe("createSignedFetcher", () => {
     const [request] = fetchMock.mock.calls[0] as [Request];
 
     expect(request.url).toEqual(url);
-    expect(request.method).toEqual("GET");
+    expect(request.method).toEqual('GET');
     expect(request.body).toEqual(null);
-    expect(request.headers.get("x-amz-test-header")).toEqual("test-value");
-    expect(request.headers.get("x-api-key")).toEqual("test-api-key");
+    expect(request.headers.get('x-amz-test-header')).toEqual('test-value');
+    expect(request.headers.get('x-api-key')).toEqual('test-api-key');
   });
 
-  it("should abort fetch", async () => {
+  it('should abort fetch', async () => {
     const signedFetch = createSignedFetcher({ ...options, fetch });
 
     const controller = new AbortController();

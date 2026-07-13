@@ -1,8 +1,9 @@
 {
-  "extends": "@total-typescript/tsconfig/bundler/no-dom",
-  "compilerOptions": {},
-  "include": [
-    "**/*.ts",
-    "vitest.*.ts",
-  ],
+  /* The workspace packages resolve to their TypeScript sources, and those sources feature-detect
+     the browser via `window`/`document`, so the DOM lib has to be available here as well. */
+  "extends": "@total-typescript/tsconfig/bundler/dom",
+  "compilerOptions": {
+    "types": ["node"]
+  },
+  "include": ["**/*.ts", "vitest.*.ts"]
 }

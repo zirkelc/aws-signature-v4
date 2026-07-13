@@ -15,6 +15,6 @@
       "request": "launch",
       "command": "pnpm tsx ${relativeFile}",
       "cwd": "${workspaceFolder}"
-    },
+    }
   ]
 }

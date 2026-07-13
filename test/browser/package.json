@@ -6,9 +6,9 @@
     "test": "vitest"
   },
   "devDependencies": {
-    "@aws-sdk/credential-provider-node": "^3.609.0",
+    "@aws-sdk/credential-provider-node": "^3.972.66",
     "aws-sigv4-fetch": "workspace:*",
     "aws-sigv4-sign": "workspace:*",
-    "jsdom": "^26.0.0"
+    "jsdom": "^29.1.1"
   }
 }

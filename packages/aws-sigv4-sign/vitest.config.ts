@@ -1,12 +1,8 @@
-import { defineProject, mergeConfig } from "vitest/config";
-import base from "../../vitest.base";
+import { defineProject } from 'vitest/config';
 
-export default mergeConfig(
-  base,
-  defineProject({
-    test: {
-      name: "unit/aws-sigv4-sign",
-      include: ["src/**/*.test.{ts,js}"],
-    },
-  }),
-);
+export default defineProject({
+  test: {
+    name: 'unit/aws-sigv4-sign',
+    include: ['src/**/*.test.{ts,js}'],
+  },
+});

@@ -2,45 +2,6 @@
   "name": "aws-sigv4-sign",
   "version": "1.2.1",
   "description": "SignatureV4 sign function implemented with the official AWS SDK",
-  "packageManager": "pnpm@9.3.0",
-  "type": "module",
-  "main": "./src/index.ts",
-  "module": "./src/index.ts",
-  "exports": {
-    ".": "./src/index.ts"
-  },
-  "publishConfig": {
-    "access": "public",
-    "main": "./dist/index.cjs",
-    "module": "./dist/index.js",
-    "exports": {
-      ".": {
-        "require": "./dist/index.cjs",
-        "import": "./dist/index.js"
-      }
-    }
-  },
-  "engines": {
-    "node": ">=18"
-  },
-  "files": [
-    "dist"
-  ],
-  "scripts": {
-    "test": "vitest",
-    "build": "tsup && pnpm pack | tail -n1 | xargs attw",
-    "prepublishOnly": "pnpm build"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/zirkelc/aws-sigv4.git",
-    "directory": "packages/aws-sigv4-sign"
-  },
-  "bugs": {
-    "url": "https://github.com/zirkelc/aws-sigv4/issues"
-  },
-  "homepage": "https://github.com/zirkelc/aws-sigv4/packages/aws-sigv4-sign#readme",
-  "license": "MIT",
   "keywords": [
     "aws",
     "aws-sdk",
@@ -49,23 +10,63 @@
     "http",
     "request",
     "sign",
-    "signer",
-    "signed",
     "signature",
-    "sigv4",
     "signature-v4",
-    "signaturev4"
+    "signaturev4",
+    "signed",
+    "signer",
+    "sigv4"
   ],
-  "dependencies": {
-    "@aws-crypto/sha256-js": "^5.2.0",
-    "@aws-sdk/credential-provider-node": "^3.609.0",
-    "@smithy/protocol-http": "^4.0.3",
-    "@smithy/signature-v4": "^3.1.2"
+  "homepage": "https://github.com/zirkelc/aws-sigv4/packages/aws-sigv4-sign#readme",
+  "bugs": {
+    "url": "https://github.com/zirkelc/aws-sigv4/issues"
   },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zirkelc/aws-sigv4.git",
+    "directory": "packages/aws-sigv4-sign"
+  },
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "main": "./src/index.ts",
+  "module": "./src/index.ts",
   "browser": {
     "@aws-sdk/credential-provider-node": false
   },
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "publishConfig": {
+    "main": "./dist/index.cjs",
+    "module": "./dist/index.mjs",
+    "types": "./dist/index.d.mts",
+    "exports": {
+      ".": {
+        "require": "./dist/index.cjs",
+        "import": "./dist/index.mjs"
+      }
+    },
+    "access": "public"
+  },
+  "scripts": {
+    "test": "vitest",
+    "typecheck": "tsc --noEmit",
+    "build": "tsdown && pnpm pack | tail -n1 | xargs attw",
+    "prepublishOnly": "pnpm build"
+  },
+  "dependencies": {
+    "@aws-crypto/sha256-js": "^5.2.0",
+    "@aws-sdk/credential-provider-node": "^3.972.66",
+    "@smithy/protocol-http": "^5.5.8",
+    "@smithy/signature-v4": "^5.6.4"
+  },
   "devDependencies": {
-    "@aws-sdk/types": "^3.609.0"
+    "@aws-sdk/types": "^3.974.0"
+  },
+  "engines": {
+    "node": ">=20"
   }
 }

@@ -1,15 +1,15 @@
-import "cross-fetch/polyfill";
-import { createSignedFetcher } from "aws-sigv4-fetch";
-import { describe, expect, it } from "vitest";
+import 'cross-fetch/polyfill';
+import { createSignedFetcher } from 'aws-sigv4-fetch';
+import { describe, expect, it } from 'vitest';
 
-const SERVICE = "iam";
-const REGION = "us-east-1";
+const SERVICE = 'iam';
+const REGION = 'us-east-1';
 
-describe("IAM", () => {
-  describe("GET", () => {
-    const url = "https://iam.amazonaws.com/?Action=GetUser&Version=2010-05-08";
+describe('IAM', () => {
+  describe('GET', () => {
+    const url = 'https://iam.amazonaws.com/?Action=GetUser&Version=2010-05-08';
 
-    it("should fetch with string", async () => {
+    it('should fetch with string', async () => {
       // Arrange
       const signedFetch = createSignedFetcher({ service: SERVICE, region: REGION });
 
@@ -20,10 +20,10 @@ describe("IAM", () => {
       expect(response.status).toBe(200);
 
       const data = await response.text();
-      expect(data).toContain("<GetUserResult>");
+      expect(data).toContain('<GetUserResult>');
     });
 
-    it("should fetch with URL", async () => {
+    it('should fetch with URL', async () => {
       // Arrange
       const signedFetch = createSignedFetcher({ service: SERVICE, region: REGION });
 
@@ -34,10 +34,10 @@ describe("IAM", () => {
       expect(response.status).toBe(200);
 
       const data = await response.text();
-      expect(data).toContain("<GetUserResult>");
+      expect(data).toContain('<GetUserResult>');
     });
 
-    it("should fetch with Request", async () => {
+    it('should fetch with Request', async () => {
       // Arrange
       const signedFetch = createSignedFetcher({ service: SERVICE, region: REGION });
 
@@ -48,18 +48,18 @@ describe("IAM", () => {
       expect(response.status).toBe(200);
 
       const data = await response.text();
-      expect(data).toContain("<GetUserResult>");
+      expect(data).toContain('<GetUserResult>');
     });
 
-    it("should fetch with additional headers", async () => {
+    it('should fetch with additional headers', async () => {
       // Arrange
       const signedFetch = createSignedFetcher({ service: SERVICE, region: REGION });
 
       // Act
       const response = await signedFetch(url, {
         headers: {
-          "x-amz-test-header": "test-value",
-          "x-api-key": "test-api-key",
+          'x-amz-test-header': 'test-value',
+          'x-api-key': 'test-api-key',
         },
       });
 
@@ -67,10 +67,10 @@ describe("IAM", () => {
       expect(response.status).toBe(200);
 
       const data = await response.text();
-      expect(data).toContain("<GetUserResult>");
+      expect(data).toContain('<GetUserResult>');
     });
 
-    it("should abort request", async () => {
+    it('should abort request', async () => {
       // Arrange
       const signedFetch = createSignedFetcher({ service: SERVICE, region: REGION });
       const controller = new AbortController();
@@ -78,7 +78,7 @@ describe("IAM", () => {
 
       // Act
       const response = signedFetch(url, {
-        method: "GET",
+        method: 'GET',
         signal,
       });
 
@@ -88,29 +88,29 @@ describe("IAM", () => {
       await expect(response).rejects.toThrow();
     });
 
-    it("should throw an error for unsigned fetch", async () => {
+    it('should throw an error for unsigned fetch', async () => {
       // Arrange
 
       // Act
       const response = await fetch(url, {
-        method: "GET",
+        method: 'GET',
       });
 
       // Assert
       expect(response.status).toBe(403);
-      expect(response.statusText).toBe("Forbidden");
+      expect(response.statusText).toBe('Forbidden');
     });
   });
 
-  describe("POST", () => {
-    const url = "https://iam.amazonaws.com/";
-    const method = "POST";
+  describe('POST', () => {
+    const url = 'https://iam.amazonaws.com/';
+    const method = 'POST';
     const headers = {
-      "Content-Type": "application/x-www-form-urlencoded; charset=utf-8",
+      'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8',
     };
-    const body = "Action=GetUser&Version=2010-05-08";
+    const body = 'Action=GetUser&Version=2010-05-08';
 
-    it("should fetch with string", async () => {
+    it('should fetch with string', async () => {
       // Arrange
       const signedFetch = createSignedFetcher({ service: SERVICE, region: REGION });
 
@@ -125,10 +125,10 @@ describe("IAM", () => {
       expect(response.status).toBe(200);
 
       const data = await response.text();
-      expect(data).toContain("<GetUserResult>");
+      expect(data).toContain('<GetUserResult>');
     });
 
-    it("should fetch with URL", async () => {
+    it('should fetch with URL', async () => {
       // Arrange
       const signedFetch = createSignedFetcher({ service: SERVICE, region: REGION });
 
@@ -143,10 +143,10 @@ describe("IAM", () => {
       expect(response.status).toBe(200);
 
       const data = await response.text();
-      expect(data).toContain("<GetUserResult>");
+      expect(data).toContain('<GetUserResult>');
     });
 
-    it("should fetch with Request", async () => {
+    it('should fetch with Request', async () => {
       // Arrange
       const signedFetch = createSignedFetcher({ service: SERVICE, region: REGION });
 
@@ -161,10 +161,10 @@ describe("IAM", () => {
       expect(response.status).toBe(200);
 
       const data = await response.text();
-      expect(data).toContain("<GetUserResult>");
+      expect(data).toContain('<GetUserResult>');
     });
 
-    it("should throw an error for unsigned fetch", async () => {
+    it('should throw an error for unsigned fetch', async () => {
       // Arrange
 
       // Act
@@ -176,7 +176,7 @@ describe("IAM", () => {
 
       // Assert
       expect(response.status).toBe(403);
-      expect(response.statusText).toBe("Forbidden");
+      expect(response.statusText).toBe('Forbidden');
     });
   });
 });

@@ -1,10 +1,10 @@
-import type { AwsCredentialIdentityProvider } from "@aws-sdk/types";
+import type { AwsCredentialIdentityProvider } from '@aws-sdk/types';
 
 /**
  * Determines if the code is running in a browser environment.
  */
 function isBrowser(): boolean {
-  return typeof window !== "undefined" && typeof document !== "undefined";
+  return typeof window !== 'undefined' && typeof document !== 'undefined';
 }
 
 /**
@@ -15,16 +15,18 @@ function isBrowser(): boolean {
 export async function getDefaultCredentialProvider(): Promise<AwsCredentialIdentityProvider> {
   if (isBrowser())
     throw new Error(
-      "AWS credentials provider is not available in browser environments. " +
-        "You must provide credentials explicitly when calling signRequest in a browser.",
+      'AWS credentials provider is not available in browser environments. ' +
+        'You must provide credentials explicitly when calling signRequest in a browser.',
     );
 
   try {
     // Dynamic import to prevent bundling Node.js specific code in browser bundles
-    const { defaultProvider } = await import("@aws-sdk/credential-provider-node");
+    const { defaultProvider } = await import('@aws-sdk/credential-provider-node');
     return defaultProvider();
   } catch (error) {
     // If import fails, we're likely in a non-Node.js environment that doesn't support the credential provider
-    throw new Error("AWS credentials provider could not be loaded. You must provide credentials explicitly.");
+    throw new Error('AWS credentials provider could not be loaded. You must provide credentials explicitly.', {
+      cause: error,
+    });
   }
 }

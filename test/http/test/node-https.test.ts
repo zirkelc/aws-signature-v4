@@ -1,9 +1,9 @@
-import { type RequestOptions, request } from "node:https";
-import { signRequest } from "aws-sigv4-sign";
-import { describe, expect, it } from "vitest";
+import { type RequestOptions, request } from 'node:https';
+import { signRequest } from 'aws-sigv4-sign';
+import { describe, expect, it } from 'vitest';
 
-const SERVICE = "iam";
-const REGION = "us-east-1";
+const SERVICE = 'iam';
+const REGION = 'us-east-1';
 
 interface NodeHttpResponse {
   status: number;
@@ -14,11 +14,11 @@ interface NodeHttpResponse {
 function nodeRequest(url: string, options: RequestOptions, body?: string): Promise<NodeHttpResponse> {
   return new Promise((resolve, reject) => {
     const req = request(url, options, (res) => {
-      let data = "";
-      res.on("data", (chunk) => {
+      let data = '';
+      res.on('data', (chunk) => {
         data += chunk;
       });
-      res.on("end", () =>
+      res.on('end', () =>
         resolve({
           status: res.statusCode ?? 0,
           statusText: res.statusMessage,
@@ -27,7 +27,7 @@ function nodeRequest(url: string, options: RequestOptions, body?: string): Promi
       );
     });
 
-    req.on("error", reject);
+    req.on('error', reject);
 
     if (body) {
       req.write(body);
@@ -36,12 +36,12 @@ function nodeRequest(url: string, options: RequestOptions, body?: string): Promi
   });
 }
 
-describe("node-http", () => {
-  describe("GET", () => {
-    const url = "https://iam.amazonaws.com/?Action=GetUser&Version=2010-05-08";
-    const method = "GET";
+describe('node-http', () => {
+  describe('GET', () => {
+    const url = 'https://iam.amazonaws.com/?Action=GetUser&Version=2010-05-08';
+    const method = 'GET';
 
-    it("should make request with signed headers", async () => {
+    it('should make request with signed headers', async () => {
       // Arrange
       const signedRequest = await signRequest(url, { method }, { service: SERVICE, region: REGION });
 
@@ -53,10 +53,10 @@ describe("node-http", () => {
 
       // Assert
       expect(response.status).toBe(200);
-      expect(response.data).toContain("<GetUserResult>");
+      expect(response.data).toContain('<GetUserResult>');
     });
 
-    it("should fail with unsigned request", async () => {
+    it('should fail with unsigned request', async () => {
       // Arrange
 
       // Act
@@ -64,19 +64,19 @@ describe("node-http", () => {
 
       // Assert
       expect(response.status).toBe(403);
-      expect(response.statusText).toBe("Forbidden");
+      expect(response.statusText).toBe('Forbidden');
     });
   });
 
-  describe("POST", () => {
-    const url = "https://iam.amazonaws.com/";
-    const method = "POST";
+  describe('POST', () => {
+    const url = 'https://iam.amazonaws.com/';
+    const method = 'POST';
     const headers = {
-      "Content-Type": "application/x-www-form-urlencoded; charset=utf-8",
+      'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8',
     };
-    const body = "Action=GetUser&Version=2010-05-08";
+    const body = 'Action=GetUser&Version=2010-05-08';
 
-    it("should make request with signed headers", async () => {
+    it('should make request with signed headers', async () => {
       // Arrange
       const signedRequest = await signRequest(url, { method, headers, body }, { service: SERVICE, region: REGION });
 
@@ -89,10 +89,10 @@ describe("node-http", () => {
 
       // Assert
       expect(response.status).toBe(200);
-      expect(response.data).toContain("<GetUserResult>");
+      expect(response.data).toContain('<GetUserResult>');
     });
 
-    it("should fail with unsigned request", async () => {
+    it('should fail with unsigned request', async () => {
       // Arrange
 
       // Act
@@ -100,7 +100,7 @@ describe("node-http", () => {
 
       // Assert
       expect(response.status).toBe(403);
-      expect(response.statusText).toBe("Forbidden");
+      expect(response.statusText).toBe('Forbidden');
     });
   });
 });

@@ -31,7 +31,24 @@ jobs:
         uses: zirkelc/setup-and-install@v1
 
       - name: Lint
-        run: pnpm lint
+        run: pnpm lint:ci
+
+      - name: Format
+        run: pnpm format:ci
+
+  typecheck:
+    name: Typecheck
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup and Install
+        id: install
+        uses: zirkelc/setup-and-install@v1
+
+      - name: Typecheck
+        run: pnpm typecheck
 
   unit-test:
     name: Unit Test
@@ -39,7 +56,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        version: [18, 20, 22]
+        version: [20, 22, 24]
 
     steps:
       - uses: actions/checkout@v4
@@ -77,7 +94,7 @@ jobs:
         if: ${{ steps.install.conclusion == 'success' }}
         uses: davelosert/vitest-coverage-report-action@v2
         with:
-          vite-config-path: vitest.base.ts
+          vite-config-path: vitest.config.ts
 
   e2e-test:
     name: E2E Test
@@ -89,6 +106,9 @@ jobs:
       - name: Setup and Install
         id: install
         uses: zirkelc/setup-and-install@v1
+        with:
+          # The HTTP client suite pulls in got, which requires Node >= 22
+          node-version: 22
 
       - name: Build
         run: pnpm build

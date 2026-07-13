@@ -11,7 +11,9 @@ interface ParsedRequest {
  */
 export const copyHeaders = (headers: Headers): Record<string, string> => {
   const headersMap = new Map<string, string>();
-  headers.forEach((value, key) => headersMap.set(key.toLowerCase(), value));
+  headers.forEach((value, key) => {
+    headersMap.set(key.toLowerCase(), value);
+  });
 
   return Object.fromEntries(headersMap.entries());
 };
@@ -28,7 +30,7 @@ export const parseRequest = async (input: string | Request | URL, init?: Request
    * Input can be a `string`, `URL`, or `Request` object
    * `RequestInfo` is a union of `Request` and `string`
    */
-  if (typeof input === "string" || input instanceof URL) {
+  if (typeof input === 'string' || input instanceof URL) {
     const url = input instanceof URL ? input.href : input;
     request = new Request(url, init);
   } else {

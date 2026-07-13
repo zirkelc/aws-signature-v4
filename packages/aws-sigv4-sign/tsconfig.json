@@ -1,7 +1,9 @@
 {
   "extends": "@total-typescript/tsconfig/bundler/dom",
-  "compilerOptions": {},
-  "include": [
-    "src/**/*.ts",
-  ],
+  "compilerOptions": {
+    /* The library itself is environment agnostic, but the tests simulate a browser by
+       stubbing Node globals, so the Node types have to be pulled in explicitly. */
+    "types": ["node"]
+  },
+  "include": ["src/**/*.ts"]
 }

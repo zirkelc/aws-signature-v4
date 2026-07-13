@@ -1,9 +1,9 @@
-import { Sha256 } from "@aws-crypto/sha256-js";
-import type { AwsCredentialIdentity, AwsCredentialIdentityProvider, Provider, QueryParameterBag } from "@aws-sdk/types";
-import { HttpRequest } from "@smithy/protocol-http";
-import { SignatureV4 } from "@smithy/signature-v4";
-import { getDefaultCredentialProvider } from "./credential-provider.js";
-import { parseRequest } from "./parse-request.js";
+import { Sha256 } from '@aws-crypto/sha256-js';
+import type { AwsCredentialIdentity, AwsCredentialIdentityProvider, QueryParameterBag } from '@aws-sdk/types';
+import { HttpRequest } from '@smithy/protocol-http';
+import { SignatureV4 } from '@smithy/signature-v4';
+import { getDefaultCredentialProvider } from './credential-provider.js';
+import { parseRequest } from './parse-request.js';
 
 export type SignRequestOptions = {
   /**
@@ -86,10 +86,10 @@ export async function signRequest(
   const { url, method, headers, body } = await parseRequest(input, init);
 
   // host is required by AWS Signature V4: https://docs.aws.amazon.com/general/latest/gr/sigv4-create-canonical-request.html
-  headers["host"] = url.host;
+  headers['host'] = url.host;
 
   const service = options.service;
-  const region = options.region || "us-east-1";
+  const region = options.region || 'us-east-1';
   const credentials = options.credentials || (await getDefaultCredentialProvider());
 
   const httpRequest = new HttpRequest({

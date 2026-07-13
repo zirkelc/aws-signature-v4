@@ -1,23 +1,23 @@
-import { GetFunctionUrlConfigCommand, LambdaClient } from "@aws-sdk/client-lambda";
-import { createSignedFetcher } from "aws-sigv4-fetch";
-import { describe, expect, it } from "vitest";
-import { FUNCTION_NAME, REGION, RESPONSE, SERVICE } from "../lib/lambda-test-stack.js";
-import { testPaths, testQueryParams } from "./fixtures.js";
+import { GetFunctionUrlConfigCommand, LambdaClient } from '@aws-sdk/client-lambda';
+import { createSignedFetcher } from 'aws-sigv4-fetch';
+import { describe, expect, it } from 'vitest';
+import { FUNCTION_NAME, REGION, RESPONSE, SERVICE } from '../lib/lambda-test-stack.js';
+import { testPaths, testQueryParams } from './fixtures.js';
 
 const client = new LambdaClient({ region: REGION });
 const response = await client.send(new GetFunctionUrlConfigCommand({ FunctionName: FUNCTION_NAME }));
-if (!response.FunctionUrl) throw new Error("Function URL not found");
+if (!response.FunctionUrl) throw new Error('Function URL not found');
 
 const functionUrl = response.FunctionUrl;
-console.log("Function URL:", functionUrl);
+console.log('Function URL:', functionUrl);
 
-describe("Lambda Function URL", () => {
-  describe("GET", () => {
-    describe.each(testPaths)("Path: %s", (path) => {
-      describe.each(testQueryParams)("Query params: %s", async (queryParams) => {
-        const url = `${functionUrl}${path}${queryParams ? `?${new URLSearchParams(queryParams).toString()}` : ""}`;
+describe('Lambda Function URL', () => {
+  describe('GET', () => {
+    describe.each(testPaths)('Path: %s', (path) => {
+      describe.each(testQueryParams)('Query params: %s', async (queryParams) => {
+        const url = `${functionUrl}${path}${queryParams ? `?${new URLSearchParams(queryParams).toString()}` : ''}`;
 
-        it("should fetch with string", async () => {
+        it('should fetch with string', async () => {
           // Arrange
           const signedFetch = createSignedFetcher({ service: SERVICE, region: REGION });
 
@@ -30,7 +30,7 @@ describe("Lambda Function URL", () => {
           expect(data).toEqual(RESPONSE);
         });
 
-        it("should fetch with URL", async () => {
+        it('should fetch with URL', async () => {
           // Arrange
           const signedFetch = createSignedFetcher({ service: SERVICE, region: REGION });
 
@@ -44,7 +44,7 @@ describe("Lambda Function URL", () => {
           expect(data).toEqual(RESPONSE);
         });
 
-        it("should fetch with Request", async () => {
+        it('should fetch with Request', async () => {
           // Arrange
           const signedFetch = createSignedFetcher({ service: SERVICE, region: REGION });
 
@@ -55,33 +55,33 @@ describe("Lambda Function URL", () => {
           expect(response.status).toBe(200);
         });
 
-        it("should throw an error for unsigned fetch", async () => {
+        it('should throw an error for unsigned fetch', async () => {
           // Arrange
 
           // Act
           const response = await fetch(url, {
-            method: "GET",
+            method: 'GET',
           });
 
           // Assert
           expect(response.status).toBe(403);
-          expect(response.statusText).toBe("Forbidden");
+          expect(response.statusText).toBe('Forbidden');
         });
       });
     });
   });
 
-  describe("POST", () => {
-    describe.each(testPaths)("Path: %s", (path) => {
-      describe.each(testQueryParams)("Query params: %s", async (queryParams) => {
-        const url = `${functionUrl}${path}${queryParams ? `?${new URLSearchParams(queryParams).toString()}` : ""}`;
-        const method = "POST";
+  describe('POST', () => {
+    describe.each(testPaths)('Path: %s', (path) => {
+      describe.each(testQueryParams)('Query params: %s', async (queryParams) => {
+        const url = `${functionUrl}${path}${queryParams ? `?${new URLSearchParams(queryParams).toString()}` : ''}`;
+        const method = 'POST';
         const headers = {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         };
         const body = JSON.stringify({});
 
-        it("should fetch with string", async () => {
+        it('should fetch with string', async () => {
           // Arrange
           const signedFetch = createSignedFetcher({ service: SERVICE, region: REGION });
 
@@ -98,7 +98,7 @@ describe("Lambda Function URL", () => {
           expect(data).toEqual(RESPONSE);
         });
 
-        it("should fetch with URL", async () => {
+        it('should fetch with URL', async () => {
           // Arrange
           const signedFetch = createSignedFetcher({ service: SERVICE, region: REGION });
 
@@ -113,7 +113,7 @@ describe("Lambda Function URL", () => {
           expect(response.status).toBe(200);
         });
 
-        it("should fetch with Request", async () => {
+        it('should fetch with Request', async () => {
           // Arrange
           const signedFetch = createSignedFetcher({ service: SERVICE, region: REGION });
 
@@ -130,7 +130,7 @@ describe("Lambda Function URL", () => {
           expect(response.status).toBe(200);
         });
 
-        it("should throw an error for unsigned fetch", async () => {
+        it('should throw an error for unsigned fetch', async () => {
           // Arrange
 
           // Act
@@ -142,7 +142,7 @@ describe("Lambda Function URL", () => {
 
           // Assert
           expect(response.status).toBe(403);
-          expect(response.statusText).toBe("Forbidden");
+          expect(response.statusText).toBe('Forbidden');
         });
       });
     });

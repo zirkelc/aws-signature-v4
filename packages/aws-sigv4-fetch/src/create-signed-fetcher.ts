@@ -1,7 +1,7 @@
-import type { AwsCredentialIdentity, AwsCredentialIdentityProvider } from "@aws-sdk/types";
-import type { SignRequestOptions } from "aws-sigv4-sign";
-import { signRequest } from "aws-sigv4-sign";
-import { getFetchFn } from "./get-fetch.js";
+import type { AwsCredentialIdentity, AwsCredentialIdentityProvider } from '@aws-sdk/types';
+import type { SignRequestOptions } from 'aws-sigv4-sign';
+import { signRequest } from 'aws-sigv4-sign';
+import { getFetchFn } from './get-fetch.js';
 
 export type SignedFetcherOptions = {
   /**
