@@ -1,6 +1,6 @@
 {
   "name": "aws-sigv4-fetch",
-  "version": "4.4.1",
+  "version": "5.0.0",
   "description": "SignatureV4 fetch function implemented with the official AWS SDK",
   "keywords": [
     "aws",
