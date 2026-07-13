@@ -20,7 +20,8 @@ jobs:
         id: install
         uses: zirkelc/setup-and-install@v1
         with:
-          node-version: 20
+          # tsdown requires Node >= 22.18
+          node-version: 22
 
       - name: Build
         run: pnpm build

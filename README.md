@@ -275,6 +275,8 @@ pnpm test:unit
 pnpm test:e2e     # signs real requests against AWS; requires credentials
 ```
 
+The published packages run on Node >= 20, but building them needs Node >= 22, because that is what the bundler (`tsdown`) requires. The tests run against the TypeScript sources, so `pnpm test:unit` works on every supported Node version without a build.
+
 The end-to-end suite signs real requests against AWS: an API Gateway REST API and a Lambda Function URL (both with IAM authentication, deployed from `test/aws`), and the IAM API. It runs across `fetch`, Axios, Got and `node:https`, and in a browser-like environment, so that a broken signature is caught against the real service rather than a mock.
 
 ## License

@@ -26,7 +26,8 @@ jobs:
         id: install
         uses: zirkelc/setup-and-install@v1
         with:
-          node-version: 20
+          # Publishing runs the build, and tsdown requires Node >= 22.18
+          node-version: 22
 
       - name: Publish
         id: changesets

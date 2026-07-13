@@ -50,6 +50,23 @@ jobs:
       - name: Typecheck
         run: pnpm typecheck
 
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup and Install
+        id: install
+        uses: zirkelc/setup-and-install@v1
+        with:
+          # tsdown requires Node >= 22.18, even though the packages themselves support Node >= 20
+          node-version: 22
+
+      - name: Build
+        run: pnpm build
+
   unit-test:
     name: Unit Test
     runs-on: ubuntu-latest
@@ -67,9 +84,8 @@ jobs:
         with:
           node-version: ${{ matrix.version }}
 
-      - name: Build
-        run: pnpm build
-
+      # The tests run against the TypeScript sources, so no build is needed here.
+      # This job exists to prove the library itself works on every supported Node version.
       - name: Test
         run: pnpm test:unit
 
@@ -83,9 +99,6 @@ jobs:
       - name: Setup and Install
         id: install
         uses: zirkelc/setup-and-install@v1
-
-      - name: Build
-        run: pnpm build
 
       - name: Test
         run: pnpm test:cov
