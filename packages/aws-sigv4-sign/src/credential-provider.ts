@@ -8,17 +8,15 @@ function isBrowser(): boolean {
 }
 
 /**
- * Returns the default credential provider based on the environment.
- * In Node.js, it uses the default provider from @aws-sdk/credential-provider-node.
- * In a browser environment, it throws an error as credentials must be provided explicitly.
+ * The pending or resolved default credential provider.
+ *
+ * The promise is cached rather than the provider it resolves to, so that
+ * concurrent callers all await the same construction and exactly one provider
+ * instance is ever built.
  */
-export async function getDefaultCredentialProvider(): Promise<AwsCredentialIdentityProvider> {
-  if (isBrowser())
-    throw new Error(
-      'AWS credentials provider is not available in browser environments. ' +
-        'You must provide credentials explicitly when calling signRequest in a browser.',
-    );
+let cachedDefaultProvider: Promise<AwsCredentialIdentityProvider> | undefined;
 
+async function loadDefaultCredentialProvider(): Promise<AwsCredentialIdentityProvider> {
   try {
     // Dynamic import to prevent bundling Node.js specific code in browser bundles
     const { defaultProvider } = await import('@aws-sdk/credential-provider-node');
@@ -29,4 +27,32 @@ export async function getDefaultCredentialProvider(): Promise<AwsCredentialIdent
       cause: error,
     });
   }
+}
+
+/**
+ * Returns the default credential provider based on the environment.
+ * In Node.js, it uses the default provider from @aws-sdk/credential-provider-node.
+ * In a browser environment, it throws an error as credentials must be provided explicitly.
+ *
+ * The provider is constructed once and reused for the lifetime of the process.
+ * The AWS SDK caches resolved credentials per provider instance and refreshes
+ * them before they expire, so reusing one instance avoids re-resolving
+ * credentials (and leaking the HTTP resources used to fetch them) on every call.
+ */
+export async function getDefaultCredentialProvider(): Promise<AwsCredentialIdentityProvider> {
+  if (isBrowser())
+    throw new Error(
+      `AWS credentials provider is not available in browser environments. You must provide credentials explicitly when calling signRequest in a browser.`,
+    );
+
+  if (!cachedDefaultProvider) {
+    cachedDefaultProvider = loadDefaultCredentialProvider();
+
+    // A transient failure must not be cached permanently, so the next call can retry
+    cachedDefaultProvider.catch(() => {
+      cachedDefaultProvider = undefined;
+    });
+  }
+
+  return cachedDefaultProvider;
 }
