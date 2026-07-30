@@ -12,10 +12,9 @@
     "lint:ci": "oxlint",
     "format": "oxfmt --write",
     "format:ci": "oxfmt --check",
-    "release": "pnpm build && pnpm changeset:publish",
+    "release": "pnpm build && pnpm publish -r --no-git-checks",
     "changeset:create": "changeset",
-    "changeset:version": "changeset version",
-    "changeset:publish": "changeset publish"
+    "changeset:version": "changeset version"
   },
   "devDependencies": {
     "@arethetypeswrong/core": "^0.18.5",
@@ -36,5 +35,5 @@
     "typescript": "^7.0.2",
     "vitest": "^4.1.10"
   },
-  "packageManager": "pnpm@10.34.5+sha512.a4ee05f2f73658255bd6a89859c065a45c28a57daefae2c893a168ee2b73168c37b91e83e57ea67654ad03f03031746430e8bce38e362e042605fb8abc80192e"
+  "packageManager": "pnpm@11.18.0+sha512.33d83c77da82f49fba836925c6f1b841181ec3132b670639bd012f7075f5c7cf634c5f870147c19aae7478fac01df09d8892e880454896edd23ee9b33757563c"
 }
