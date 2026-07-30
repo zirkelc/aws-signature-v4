@@ -133,6 +133,28 @@ jobs:
       - name: Test
         run: pnpm test:e2e
 
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    outputs:
+      releases_created: ${{ steps.release.outputs.releases_created }}
+      paths_released: ${{ steps.release.outputs.paths_released }}
+      prs_created: ${{ steps.release.outputs.prs_created }}
+
+    steps:
+      # https://github.com/googleapis/release-please-action
+      - name: Release Please
+        uses: googleapis/release-please-action@v4
+        id: release
+        with:
+          # A PAT is required so that the releases this creates trigger the Release workflow.
+          # The default GITHUB_TOKEN deliberately does not trigger other workflows.
+          # https://github.com/googleapis/release-please-action?tab=readme-ov-file#github-credentials
+          token: ${{ secrets.PAT }}
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
+
   # preview:
   #   name: Preview
   #   runs-on: ubuntu-latest

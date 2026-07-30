@@ -12,15 +12,10 @@
     "lint:ci": "oxlint",
     "format": "oxfmt --write",
     "format:ci": "oxfmt --check",
-    "release": "pnpm build && pnpm publish -r --no-git-checks",
-    "changeset:create": "changeset",
-    "changeset:version": "changeset version"
+    "release": "pnpm publish -r --provenance --no-git-checks"
   },
   "devDependencies": {
     "@arethetypeswrong/core": "^0.18.5",
-    "@changesets/changelog-github": "^0.7.0",
-    "@changesets/cli": "^2.31.0",
-    "@changesets/get-github-info": "^0.8.0",
     "@total-typescript/tsconfig": "^1.0.4",
     "@tsconfig/node20": "^20.1.9",
     "@types/node": "^26.1.1",

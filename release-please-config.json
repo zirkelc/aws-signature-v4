@@ -1,0 +1,28 @@
+{
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+  "release-type": "node",
+  "always-update": true,
+  "bootstrap-sha": "d0a2efb13ffdb2baa5b202b67376bd0eab5f013e",
+  "include-component-in-tag": true,
+  "include-v-in-tag": false,
+  "tag-separator": "@",
+  "changelog-sections": [
+    { "type": "feat", "section": "Features", "hidden": false },
+    { "type": "feature", "section": "Features", "hidden": false },
+    { "type": "fix", "section": "Bug Fixes", "hidden": false },
+    { "type": "perf", "section": "Performance Improvements", "hidden": false },
+    { "type": "revert", "section": "Reverts", "hidden": false },
+    { "type": "refactor", "section": "Code Refactoring", "hidden": false },
+    { "type": "docs", "section": "Documentation", "hidden": false },
+    { "type": "style", "section": "Styles", "hidden": false },
+    { "type": "test", "section": "Tests", "hidden": false },
+    { "type": "build", "section": "Build System", "hidden": false },
+    { "type": "ci", "section": "Continuous Integration", "hidden": false },
+    { "type": "chore", "section": "Miscellaneous Chores", "hidden": false }
+  ],
+  "plugins": [{ "type": "node-workspace" }],
+  "packages": {
+    "packages/aws-sigv4-sign": {},
+    "packages/aws-sigv4-fetch": {}
+  }
+}
