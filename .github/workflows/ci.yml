@@ -18,6 +18,8 @@ permissions:
   contents: write # needed for github release
   pull-requests: write # needed for coverage comment
 
+# pnpm 11 requires Node >= 22.13, so every job installs on Node 22. Only the unit
+# tests then switch the runtime to the Node version under test.
 jobs:
   lint:
     name: Lint
@@ -26,9 +28,19 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup and Install
+      # https://github.com/pnpm/action-setup
+      # Must come before setup-node so its pnpm cache can locate the store
+      - uses: pnpm/action-setup@v4
+
+      # https://github.com/actions/setup-node
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: 'pnpm'
+
+      - name: Install
         id: install
-        uses: zirkelc/setup-and-install@v1
+        run: pnpm install
 
       - name: Lint
         run: pnpm lint:ci
@@ -43,9 +55,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup and Install
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: 'pnpm'
+
+      - name: Install
         id: install
-        uses: zirkelc/setup-and-install@v1
+        run: pnpm install
 
       - name: Typecheck
         run: pnpm typecheck
@@ -57,12 +76,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup and Install
-        id: install
-        uses: zirkelc/setup-and-install@v1
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v6
         with:
           # tsdown requires Node >= 22.18, even though the packages themselves support Node >= 20
           node-version: 22
+          cache: 'pnpm'
+
+      - name: Install
+        id: install
+        run: pnpm install
 
       - name: Build
         run: pnpm build
@@ -73,21 +97,32 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        version: [22, 24]
+        version: [20, 22, 24]
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup and Install
+      - uses: pnpm/action-setup@v4
+
+      # Install on Node 22, because pnpm 11 itself requires Node >= 22.13
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: 'pnpm'
+
+      - name: Install
         id: install
-        uses: zirkelc/setup-and-install@v1
+        run: pnpm install
+
+      # Switch the runtime to the version under test. The tests run against the
+      # TypeScript sources, so no build is needed. vitest is invoked directly
+      # rather than through pnpm, which cannot itself run on Node 20.
+      - uses: actions/setup-node@v6
         with:
           node-version: ${{ matrix.version }}
 
-      # The tests run against the TypeScript sources, so no build is needed here.
-      # This job exists to prove the library itself works on every supported Node version.
       - name: Test
-        run: pnpm test:unit
+        run: node_modules/.bin/vitest run --project='unit/*'
 
   coverage:
     name: Coverage
@@ -96,9 +131,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup and Install
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: 'pnpm'
+
+      - name: Install
         id: install
-        uses: zirkelc/setup-and-install@v1
+        run: pnpm install
 
       - name: Test
         run: pnpm test:cov
@@ -116,12 +158,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup and Install
-        id: install
-        uses: zirkelc/setup-and-install@v1
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v6
         with:
           # The HTTP client suite pulls in got, which requires Node >= 22
           node-version: 22
+          cache: 'pnpm'
+
+      - name: Install
+        id: install
+        run: pnpm install
 
       - name: Build
         run: pnpm build
@@ -161,13 +208,15 @@ jobs:
   #   steps:
   #     - uses: actions/checkout@v4
 
-  #     - run: corepack enable
+  #     - uses: pnpm/action-setup@v4
 
-  #     - name: Setup and Install
-  #       id: install
-  #       uses: zirkelc/setup-and-install@v1
+  #     - uses: actions/setup-node@v6
   #       with:
-  #         node-version: 20
+  #         node-version: 22
+  #         cache: 'pnpm'
+
+  #     - name: Install
+  #       run: pnpm install
 
   #     - name: Build
   #       run: pnpm build

@@ -16,12 +16,20 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup and Install
-        id: install
-        uses: zirkelc/setup-and-install@v1
+      # https://github.com/pnpm/action-setup
+      # Must come before setup-node so its pnpm cache can locate the store
+      - uses: pnpm/action-setup@v4
+
+      # https://github.com/actions/setup-node
+      - uses: actions/setup-node@v6
         with:
-          # tsdown requires Node >= 22.18
+          # tsdown requires Node >= 22.18, pnpm 11 requires Node >= 22.13
           node-version: 22
+          cache: 'pnpm'
+
+      - name: Install
+        id: install
+        run: pnpm install
 
       - name: Build
         run: pnpm build
