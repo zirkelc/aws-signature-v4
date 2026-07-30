@@ -48,8 +48,7 @@
   "scripts": {
     "test": "vitest",
     "typecheck": "tsc --noEmit",
-    "build": "tsdown && pnpm pack | tail -n1 | xargs attw",
-    "prepublishOnly": "pnpm build"
+    "build": "tsdown"
   },
   "dependencies": {
     "aws-sigv4-sign": "workspace:*"
