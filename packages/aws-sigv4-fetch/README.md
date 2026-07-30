@@ -1,19 +1,36 @@
-# aws-sigv4-fetch
+<div align="center">
 
-A small wrapper around the [`fetch`](https://developer.mozilla.org/en-US/docs/Web/API/fetch) API to automatically sign HTTP requests with AWS Signature Version 4 (SigV4) authentication, built with the official AWS SDK.
+<h1>aws-sigv4-fetch</h1>
+
+<p align="center">SignatureV4 fetch function implemented with the official AWS SDK</p>
+<p align="center">
+  <a href="https://www.npmjs.com/package/aws-sigv4-fetch" alt="aws-sigv4-fetch"><img src="https://img.shields.io/npm/dt/aws-sigv4-fetch?label=aws-sigv4-fetch"></a> <a href="https://github.com/zirkelc/aws-signature-v4/actions/workflows/ci.yml" alt="CI"><img src="https://img.shields.io/github/actions/workflow/status/zirkelc/aws-signature-v4/ci.yml?branch=main"></a>
+</p>
+
+</div>
+
+This library wraps the [`fetch`](https://developer.mozilla.org/en-US/docs/Web/API/fetch) API so every request is signed with [AWS Signature Version 4](https://docs.aws.amazon.com/general/latest/gr/signature-version-4.html). Signing is done by [`@smithy/signature-v4`](https://www.npmjs.com/package/@smithy/signature-v4), the same signer the AWS SDK uses, so signatures are computed exactly the way AWS expects.
+
+## Why?
+
+Most AWS services (API Gateway, Lambda Function URLs, AppSync, IAM, OpenSearch) can be locked behind IAM authentication. Once they are, a plain `fetch` is rejected with `403 Forbidden`, because every request must carry an `Authorization` header derived from your credentials, the request itself, and the current time. However, you may not want to:
+
+- **Adopt a service-specific SDK client**: pulling in `@aws-sdk/client-*` just to call your own HTTP endpoint is a lot of dependency for one request
+- **Hand-roll the signature**: SigV4 covers the method, URL, query string, headers and body, and getting the canonical form wrong fails with an opaque `403`
+- **Rewrite your HTTP layer**: your code already calls `fetch`, and it should keep doing so
+
+This library gives you a `fetch` function with the identical signature, so signing becomes a drop-in replacement.
 
 > [!TIP]
-> If you are using other HTTP libraries like Axios, Ky, Got, or any other HTTP library, consider using the [`aws-sigv4-sign`](https://github.com/zirkelc/aws-signature-v4/tree/main/packages/aws-sigv4-sign) package to sign requests.
+> Using Axios, Ky, Got or another HTTP library instead? Use [`aws-sigv4-sign`](https://github.com/zirkelc/aws-signature-v4/tree/main/packages/aws-sigv4-sign), which returns a signed `Request` whose headers you can hand to any client.
 
-## Install
+## Installation
 
-```sh
-npm install --save aws-sigv4-fetch
+```bash
+npm install aws-sigv4-fetch
 ```
 
-## ESM and CommonJS
-
-This package ships with ES Module and CommonJS support. That means you can `import` or `require` the package in your project depending on your module format.
+Requires Node.js >= 20. Ships both ES Module and CommonJS builds with bundled TypeScript declarations, so no `@types/*` package is needed.
 
 ```ts
 // ESM
@@ -25,211 +42,193 @@ const { createSignedFetcher } = require('aws-sigv4-fetch');
 
 ## Usage
 
-This package exports a `createSignedFetcher` function that returns a `fetch` function to automatically sign HTTP requests with AWS Signature V4 authentication.
-The returned function has the same signature as the default `fetch` function and can be used as a drop-in replacement.
+`createSignedFetcher` takes the signing configuration once and returns a `fetch` function. The returned function has the same signature as the native `fetch`, so it accepts a `string`, a [`URL`](https://developer.mozilla.org/en-US/docs/Web/API/URL) or a [`Request`](https://developer.mozilla.org/en-US/docs/Web/API/Request), plus an optional [`RequestInit`](https://developer.mozilla.org/en-US/docs/Web/API/RequestInit).
 
 ```ts
-import { createSignedFetcher, SignedFetcherOptions } from 'aws-sigv4-fetch';
+import { createSignedFetcher } from 'aws-sigv4-fetch';
 
-const options: SignedFetcherOptions = {
-  service: 'lambda',         // required
-  region: 'eu-west-1',       // optional (defaults to 'us-east-1')
-  credentials: {             // optional in Node.js (defaults to credentials from environment), required in browser
-    accessKeyId: '...',
-    secretAccessKey: '...',
-    sessionToken: '...',
-  }
-  fetch: fetch,              // optional (defaults to native fetch)
-};
-
-const signedFetch = createSignedFetcher(options);
-
-const url = 'https://mylambda.lambda-url.eu-west-1.on.aws/';
-
-// signedFetch(input: string)
-const response = await signedFetch(url);
-
-// signedFetch(input: URL)
-const response = await signedFetch(new URL(url));
-
-// signedFetch(input: Request)
-const response = await signedFetch(new Request(url));
-
-// signedFetch(input: string, init?: RequestInit)
-const response = await signedFetch(url,
-  {
-    method: 'POST',
-    body: JSON.stringify({ a: 1 }),
-    headers: { 'Content-Type': 'application/json' }
-  },
-  options
-);
-```
-
-### Options
-
-The `createSignedFetcher` function accepts the following options:
-
-| Parameter     | Type                                                                                                                                     | Default                                  | Description                                                                                                                                                                                                                                                                                                      |
-| ------------- | ---------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `service`     | `string`                                                                                                                                 | Required                                 | The `service` is **required** and must match the AWS service you are signing requests for. If it doesn't match, the request will fail with an error like: `Credential should be scoped to correct service: 'service'`.                                                                                           |
-| `region`      | `string`                                                                                                                                 | `us-east-1`                              | The `region` is **optional** and defaults to `us-east-1` if not provided. Some services like IAM are global and don't require a region.                                                                                                                                                                          |
-| `credentials` | [`AwsCredentialIdentity`](https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/Package/-smithy-types/Interface/AwsCredentialIdentity/) | Optional in Node.js, required in browser | The `credentials` is **optional** in Node.js environments where they will be retrieved from the environment using [`@aws-sdk/credential-provider-node`](https://www.npmjs.com/package/@aws-sdk/credential-provider-node). In browser environments, credentials are **required** and must be provided explicitly. |
-| `fetch`       | `fetch`                                                                                                                                  | Native `fetch`                           | The `fetch` function is **optional**. If not provided, the native `fetch` function will be used.                                                                                                                                                                                                                 |
-
-#### Credentials
-
-The `credentials` have type [`AwsCredentialIdentity`](https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/Package/-smithy-types/Interface/AwsCredentialIdentity/) and consist of an `accessKeyId`, `secretAccessKey` and optionally a `sessionToken`. Credential handling differs between Node.js and browser environments:
-
-##### Node.js
-
-In Node.js environments, credentials are **optional**. If not provided, they will be automatically loaded from the environment using [`@aws-sdk/credential-provider-node`](https://www.npmjs.com/package/@aws-sdk/credential-provider-node), which checks several sources in this order:
-
-- Environment variables exposed via process.env
-- SSO credentials from token cache
-- Web identity token credentials
-- Shared credentials and config ini files
-- The EC2/ECS Instance Metadata Service
-
-##### Browser
-
-In browser environments, credentials are **required** and must be provided explicitly for security reasons. The recommended method to provide credentials is to use Amazon Cognito Identity or web federated identity providers using [`@aws-sdk/credential-providers`](https://www.npmjs.com/package/@aws-sdk/credential-providers).
-
-> [!WARNING]
-> Never hardcode AWS credentials in browser applications. Hard coding credentials poses a risk of exposing your access key ID and secret access key.
-
-```ts
-import { fromCognitoIdentity } from '@aws-sdk/credential-providers';
-
-const signedFetch = createSignedFetcher({
-  service: 'lambda',
-  region: 'eu-west-1',
-  credentials: fromCognitoIdentity({
-    // Required. The unique identifier for the identity against which credentials
-    // will be issued.
-    identityId: 'us-east-1:128d0a74-c82f-4553-916d-90053example',
-    // Optional. The ARN of the role to be assumed when multiple roles were received in the token
-    // from the identity provider.
-    customRoleArn: 'arn:aws:iam::1234567890:role/MYAPP-CognitoIdentity',
-    // Optional. A set of name-value pairs that map provider names to provider tokens.
-    // Required when using identities associated with external identity providers such as Facebook.
-    logins: {
-      'graph.facebook.com': 'FBTOKEN',
-      'www.amazon.com': 'AMAZONTOKEN',
-      'accounts.google.com': 'GOOGLETOKEN',
-      'api.twitter.com': "TWITTERTOKEN'",
-      'www.digits.com': 'DIGITSTOKEN',
-    },
-    // Optional overrides. This is passed to an inner Cognito client
-    // instantiated to resolve the credentials. Region and profile
-    // are inherited from the upper client if present unless overridden.
-    clientConfig: {},
-  }),
-});
-```
-
-#### Fetch
-
-The `fetch` function is optional. If not provided, the `fetch` function from the environment will be used. Native `fetch` is supported in Node.js >= v18. If you are running in an environment where native `fetch` is **not** available, the `fetch` function must be polyfilled or provided as an argument to `createSignedFetcher`. This allows to use the same `fetch` function that is already used in your application. There are several ways to do this:
-
-##### Native `fetch`
-
-If native `fetch` is available, you don't have to pass it as option to `createSignedFetcher`.
-
-```ts
-// native fetch is available and doesn't have to be passed as option
-const signedFetch = createSignedFetcher({
-  service: 'lambda',
-  region: 'eu-west-1',
-});
-```
-
-##### Polyfill `fetch`
-
-Install a fetch package like [`cross-fetch`](https://www.npmjs.com/package/cross-fetch) and import it as [polyfill](<https://en.wikipedia.org/wiki/Polyfill_(programming)>). The `fetch` function will be available **globally** after importing the polyfill.
-
-```ts
-import 'cross-fetch/polyfill';
-
-// fetch was imported globally and doesn't have to be passed as option
-const signedFetch = createSignedFetcher({
-  service: 'iam',
-  region: 'eu-west-1',
-});
-```
-
-##### Pass `fetch` as an argument
-
-Install a fetch package like [`cross-fetch`](https://www.npmjs.com/package/cross-fetch) and import it as [ponyfill](https://github.com/sindresorhus/ponyfill). The `fetch` function will be available **locally** after importing the ponyfill. Pass the `fetch` function as an argument to `createSignedFetcher`:
-
-```ts
-import fetch from 'cross-fetch';
-
-// fetch was imported locally and must be passed as option
-const signedFetch = createSignedFetcher({
-  service: 'iam',
-  region: 'eu-west-1',
-  fetch: fetch,
-});
-```
-
-## Examples
-
-### API Gateway
-
-```ts
-const signedFetch = createSignedFetcher({ service: 'execute-api', region: 'eu-west-1' });
-const response = await signedFetch('https://myapi.execute-api.eu-west-1.amazonaws.com/my-stage/my-resource');
-```
-
-### Lambda Function URL
-
-```ts
 const signedFetch = createSignedFetcher({ service: 'lambda', region: 'eu-west-1' });
-const response = await signedFetch(new URL('https://mylambda.lambda-url.eu-west-1.on.aws/'));
-```
 
-### AppSync
-
-```ts
-const signedFetch = createSignedFetcher({ service: 'appsync', region: 'eu-west-1' });
-const response = await signedFetch('https://mygraphqlapi.appsync-api.eu-west-1.amazonaws.com/graphql', {
+const response = await signedFetch('https://mylambda.lambda-url.eu-west-1.on.aws/', {
   method: 'POST',
   body: JSON.stringify({ a: 1 }),
   headers: { 'Content-Type': 'application/json' },
 });
 ```
 
-### Automatically sign GraphQL Requests with [`graphql-request`](https://www.npmjs.com/package/graphql-request)
+### Service and region
 
-If you are using [`graphql-request`](https://www.npmjs.com/package/graphql-request) as GraphQL library, you can use the `createSignedFetcher` function to create a signed [`fetch`](https://developer.mozilla.org/en-US/docs/Web/API/fetch) function and pass it to the [`fetch`](https://github.com/graffle-js/graffle/blob/b732f4595b2619cc0f0c23e69e8316f37e29713b/src/legacy/helpers/types.ts#L63-L71) option of the [`GraphQLClient`](https://github.com/graffle-js/graffle/blob/b732f4595b2619cc0f0c23e69e8316f37e29713b/src/legacy/classes/GraphQLClient.ts#L20-L21):
+`service` is required and must match the AWS service you are calling. A mismatch fails with `Credential should be scoped to correct service: 'service'`. `region` is optional and defaults to `us-east-1`.
+
+```ts
+const signedFetch = createSignedFetcher({
+  // service: must match the target, this is the most common source of 403s
+  service: 'execute-api',
+  // region: defaults to 'us-east-1'; global services like IAM are always signed for us-east-1
+  region: 'eu-west-1',
+});
+```
+
+Common values:
+
+| Target                           | `service`     |
+| -------------------------------- | ------------- |
+| API Gateway (REST and HTTP APIs) | `execute-api` |
+| Lambda Function URL              | `lambda`      |
+| AppSync                          | `appsync`     |
+| IAM                              | `iam`         |
+| OpenSearch / Elasticsearch       | `es`          |
+| S3                               | `s3`          |
+
+### Credentials
+
+Credentials are **optional in Node.js** and **required in the browser**. When omitted in Node.js they are resolved with [`@aws-sdk/credential-provider-node`](https://www.npmjs.com/package/@aws-sdk/credential-provider-node), which checks, in order: environment variables, SSO token cache, web identity tokens, shared credentials and config files, and finally the EC2/ECS instance metadata service.
+
+```ts
+// Credentials are picked up from the environment
+const signedFetch = createSignedFetcher({ service: 'lambda', region: 'eu-west-1' });
+```
+
+> [!IMPORTANT]
+> The default provider is constructed once and reused for the lifetime of the process. The AWS SDK caches the credentials it resolves and refreshes them before they expire, so only the first signed request pays for the lookup. Because the provider is pinned, changes to `AWS_PROFILE` or the other credential environment variables after the first signed request are not picked up; pass `credentials` explicitly if you need to switch identities at runtime.
+
+You can always pass credentials explicitly, which skips the lookup. The option accepts either a static [`AwsCredentialIdentity`](https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/Package/-smithy-types/Interface/AwsCredentialIdentity/) or an [`AwsCredentialIdentityProvider`](https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/Package/-smithy-types/Interface/AwsCredentialIdentityProvider/) function:
+
+```ts
+const signedFetch = createSignedFetcher({
+  service: 'lambda',
+  region: 'eu-west-1',
+  credentials: {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
+    // sessionToken: only for temporary credentials, adds the x-amz-security-token header
+    sessionToken: process.env.AWS_SESSION_TOKEN,
+  },
+});
+```
+
+In the browser there is no environment to resolve from, so omitting `credentials` throws. Use temporary, scoped credentials from Amazon Cognito or a web federated identity provider via [`@aws-sdk/credential-providers`](https://www.npmjs.com/package/@aws-sdk/credential-providers):
+
+```ts
+import { fromCognitoIdentityPool } from '@aws-sdk/credential-providers';
+
+const signedFetch = createSignedFetcher({
+  service: 'execute-api',
+  region: 'eu-west-1',
+  credentials: fromCognitoIdentityPool({
+    identityPoolId: 'eu-west-1:...',
+    clientConfig: { region: 'eu-west-1' },
+  }),
+});
+```
+
+> [!WARNING]
+> Never hardcode AWS credentials in a browser application. Doing so exposes your access key ID and secret access key to anyone who loads the page.
+
+### Custom `fetch`
+
+`fetch` is optional and defaults to the global `fetch`, which is available natively in Node.js >= 20. Pass your own implementation when the global is missing or when you want the same instrumented `fetch` your application already uses.
+
+```ts
+import ponyfill from 'cross-fetch';
+
+const signedFetch = createSignedFetcher({
+  service: 'lambda',
+  region: 'eu-west-1',
+  // fetch: defaults to the global fetch
+  fetch: ponyfill,
+});
+```
+
+A global polyfill works too, in which case the option can be omitted entirely:
+
+```ts
+import 'cross-fetch/polyfill';
+
+// fetch is now global, so it does not need to be passed
+const signedFetch = createSignedFetcher({ service: 'lambda', region: 'eu-west-1' });
+```
+
+### Any client that accepts a `fetch`
+
+Because the returned function is signature-compatible with `fetch`, any library that lets you swap in a custom `fetch` is signed without further glue. For example [`graphql-request`](https://www.npmjs.com/package/graphql-request):
 
 ```ts
 import { createSignedFetcher } from 'aws-sigv4-fetch';
 import { GraphQLClient } from 'graphql-request';
 
-const query = `
-  mutation CreateItem($input: CreateItemInput!) {
-    createItem(input: $input) {
-      id
-      createdAt
-      updatedAt
-      name
-    }
-  }
-`;
-
-const variables = {
-  input: {
-    name,
-  },
-};
-
 const client = new GraphQLClient('https://mygraphqlapi.appsync-api.eu-west-1.amazonaws.com/graphql', {
   fetch: createSignedFetcher({ service: 'appsync', region: 'eu-west-1' }),
 });
 
-const result = await client.request(query, variables);
+const result = await client.request(query, { input: { name: 'Item' } });
+```
+
+## Advanced
+
+### Everything must be set before signing
+
+> [!IMPORTANT]
+> The signature covers the method, URL, query string, headers and body. Anything you change after signing invalidates it and the request fails with `403 Forbidden`. Pass the full `RequestInit` to the signed fetcher rather than mutating the request afterwards.
+
+Custom headers are therefore part of the signature, while an [`AbortSignal`](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal) is passed straight through to the underlying `fetch`:
+
+```ts
+const response = await signedFetch('https://mylambda.lambda-url.eu-west-1.on.aws/', {
+  headers: { 'X-Custom-Header': 'value' },
+  signal: AbortSignal.timeout(5_000),
+});
+```
+
+### Browser bundles
+
+The Node-only credential provider is loaded through a dynamic import, and `aws-sigv4-sign` maps it to `false` in its `browser` field, so bundlers leave it out of browser builds entirely. This is why credentials must be explicit in the browser.
+
+## API
+
+### `createSignedFetcher(options)`
+
+```ts
+function createSignedFetcher(options: SignedFetcherOptions): typeof fetch;
+```
+
+Returns a `fetch` function that signs every request before sending it. Configuration is captured once, when the fetcher is created; the returned function takes only `fetch`'s own arguments.
+
+```ts
+const signedFetch = createSignedFetcher({ service: 'lambda', region: 'eu-west-1' });
+
+// Same call signatures as the native fetch
+await signedFetch('https://mylambda.lambda-url.eu-west-1.on.aws/');
+await signedFetch(new URL('https://mylambda.lambda-url.eu-west-1.on.aws/'));
+await signedFetch(new Request('https://mylambda.lambda-url.eu-west-1.on.aws/'));
+await signedFetch('https://mylambda.lambda-url.eu-west-1.on.aws/', { method: 'POST', body: '{}' });
+```
+
+## Types
+
+### `SignedFetcherOptions`
+
+The options bag accepted by `createSignedFetcher`.
+
+```ts
+import type { SignedFetcherOptions } from 'aws-sigv4-fetch';
+
+type SignedFetcherOptions = {
+  service: string; // required, e.g. 'lambda' or 'execute-api'
+  region?: string; // default: 'us-east-1'
+  credentials?: AwsCredentialIdentity | AwsCredentialIdentityProvider; // default: resolved from the environment in Node.js
+  fetch?: typeof fetch; // default: the global fetch
+};
+```
+
+### `CreateSignedFetcher`
+
+The type of `createSignedFetcher` itself. Useful when wrapping or injecting the factory.
+
+```ts
+import type { CreateSignedFetcher } from 'aws-sigv4-fetch';
+
+type CreateSignedFetcher = (init: SignedFetcherOptions) => typeof fetch;
 ```
 
 ## License

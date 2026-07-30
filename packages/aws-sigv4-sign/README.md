@@ -1,19 +1,36 @@
-# aws-sigv4-sign
+<div align="center">
 
-A small library for signing HTTP requests with AWS Signature Version 4 (SigV4) authentication, built with the official AWS SDK.
+<h1>aws-sigv4-sign</h1>
+
+<p align="center">SignatureV4 sign function implemented with the official AWS SDK</p>
+<p align="center">
+  <a href="https://www.npmjs.com/package/aws-sigv4-sign" alt="aws-sigv4-sign"><img src="https://img.shields.io/npm/dt/aws-sigv4-sign?label=aws-sigv4-sign"></a> <a href="https://github.com/zirkelc/aws-signature-v4/actions/workflows/ci.yml" alt="CI"><img src="https://img.shields.io/github/actions/workflow/status/zirkelc/aws-signature-v4/ci.yml?branch=main"></a>
+</p>
+
+</div>
+
+This library signs HTTP requests with [AWS Signature Version 4](https://docs.aws.amazon.com/general/latest/gr/signature-version-4.html) and returns a standard [`Request`](https://developer.mozilla.org/en-US/docs/Web/API/Request) carrying the signed headers, ready to hand to any HTTP client. Signing is done by [`@smithy/signature-v4`](https://www.npmjs.com/package/@smithy/signature-v4), the same signer the AWS SDK uses, so signatures are computed exactly the way AWS expects.
+
+## Why?
+
+Most AWS services (API Gateway, Lambda Function URLs, AppSync, IAM, OpenSearch) can be locked behind IAM authentication. Once they are, an unsigned request is rejected with `403 Forbidden`, because every request must carry an `Authorization` header derived from your credentials, the request itself, and the current time. However, you may not want to:
+
+- **Adopt a service-specific SDK client**: pulling in `@aws-sdk/client-*` just to call your own HTTP endpoint is a lot of dependency for one request
+- **Hand-roll the signature**: SigV4 covers the method, URL, query string, headers and body, and getting the canonical form wrong fails with an opaque `403`
+- **Change HTTP client**: you already use Axios, Ky, Got or `node:https`, and signing should not dictate that choice
+
+This library computes the signature and gives you back plain headers, leaving the transport entirely up to you.
 
 > [!TIP]
-> If you are using the [`fetch`](https://developer.mozilla.org/en-US/docs/Web/API/fetch) API, consider using the [`aws-sigv4-fetch`](https://github.com/zirkelc/aws-signature-v4/tree/main/packages/aws-sigv4-fetch) package to automatically sign requests.
+> Using the [`fetch`](https://developer.mozilla.org/en-US/docs/Web/API/fetch) API? Use [`aws-sigv4-fetch`](https://github.com/zirkelc/aws-signature-v4/tree/main/packages/aws-sigv4-fetch), which wraps this library in a drop-in `fetch` replacement that signs every request for you.
 
-## Install
+## Installation
 
-```sh
-npm install --save aws-sigv4-sign
+```bash
+npm install aws-sigv4-sign
 ```
 
-## ESM and CommonJS
-
-This package ships with ES Module and CommonJS support. That means you can `import` or `require` the package in your project depending on your module format.
+Requires Node.js >= 20. Ships both ES Module and CommonJS builds with bundled TypeScript declarations, so no `@types/*` package is needed.
 
 ```ts
 // ESM
@@ -25,224 +42,212 @@ const { signRequest } = require('aws-sigv4-sign');
 
 ## Usage
 
-This package exports a `signRequest` function that returns a [`Request`](https://developer.mozilla.org/en-US/docs/Web/API/Request) object with signed headers for AWS Signature V4 (SigV4) authentication.
-The function is overloaded with the same signature as the [`fetch`](https://developer.mozilla.org/en-US/docs/Web/API/fetch) API and an optional `options` parameter.
+`signRequest` mirrors the [`fetch`](https://developer.mozilla.org/en-US/docs/Web/API/fetch) argument shape and appends a required options object. The input can be a `string`, a [`URL`](https://developer.mozilla.org/en-US/docs/Web/API/URL) or a [`Request`](https://developer.mozilla.org/en-US/docs/Web/API/Request), with an optional [`RequestInit`](https://developer.mozilla.org/en-US/docs/Web/API/RequestInit) in between.
 
 ```ts
-import { signRequest, SignRequestOptions } from 'aws-sigv4-sign';
+import { signRequest } from 'aws-sigv4-sign';
 
-const options: SignRequestOptions = {
-  service: 'lambda', // required
-  region: 'eu-west-1', // optional (defaults to 'us-east-1')
-  credentials: {
-    // optional in Node.js (defaults to credentials from environment), required in browser
-    accessKeyId: '...',
-    secretAccessKey: '...',
-    sessionToken: '...',
-  },
-};
+const signedRequest = await signRequest('https://mylambda.lambda-url.eu-west-1.on.aws/', {
+  service: 'lambda',
+  region: 'eu-west-1',
+});
 
-const url = 'https://mylambda.lambda-url.eu-west-1.on.aws/';
+const response = await fetch(signedRequest);
+```
 
-// signRequest(input: string, options: SignRequestOptions)
-const signedRequest = await signRequest(url, options);
+### Reading the signed headers
 
-// signRequest(input: URL, options: SignRequestOptions)
-const signedRequest = await signRequest(new URL(url), options);
+The returned `Request` carries the signing headers on its [`headers`](https://developer.mozilla.org/en-US/docs/Web/API/Request/headers) property. Convert them to a plain object to pass them to a client that does not accept a `Request`.
 
-// signRequest(input: Request, options: SignRequestOptions)
-const signedRequest = await signRequest(new Request(url), options);
+```ts
+const signedRequest = await signRequest(url, { service: 'lambda', region: 'eu-west-1' });
 
-// signRequest(input: string, init?: RequestInit, options: SignRequestOptions)
+const headers = Object.fromEntries(signedRequest.headers.entries());
+
+headers.authorization; // AWS4-HMAC-SHA256 Credential=.../20250101/eu-west-1/lambda/aws4_request, SignedHeaders=..., Signature=...
+headers.host; // mylambda.lambda-url.eu-west-1.on.aws
+headers['x-amz-date']; // 20250101T000000Z
+headers['x-amz-content-sha256']; // hex-encoded SHA-256 of the body
+headers['x-amz-security-token']; // only when the credentials include a session token
+```
+
+### Sending with any HTTP client
+
+Every client works the same way: sign, read the headers, send. Pass `signedRequest.url` rather than the original input, so the URL that was signed is the URL that is sent.
+
+```ts
+const signedRequest = await signRequest(url, { service: 'lambda', region: 'eu-west-1' });
+const headers = Object.fromEntries(signedRequest.headers.entries());
+
+// Axios
+import axios from 'axios';
+await axios(signedRequest.url, { headers });
+
+// Ky
+import ky from 'ky';
+await ky.get(signedRequest.url, { headers });
+
+// Got
+import got from 'got';
+await got(signedRequest.url, { headers });
+
+// node:https
+import { request } from 'node:https';
+request(signedRequest.url, { headers }, (res) => {
+  /* ... */
+}).end();
+```
+
+### Sending a body
+
+The body is part of the signature, so it has to be passed to `signRequest` in the `RequestInit` and sent unchanged. With a body, the options move to the third argument.
+
+```ts
 const signedRequest = await signRequest(
-  url,
+  'https://mylambda.lambda-url.eu-west-1.on.aws/',
   {
     method: 'POST',
     body: JSON.stringify({ a: 1 }),
     headers: { 'Content-Type': 'application/json' },
   },
-  options,
+  { service: 'lambda', region: 'eu-west-1' },
 );
 ```
 
-The returned [`Request`](https://developer.mozilla.org/en-US/docs/Web/API/Request) object contains the signed authorization [`headers`](https://developer.mozilla.org/en-US/docs/Web/API/Response/headers) with the following keys: `authorization`, `host`, `x-amz-date`, `x-amz-content-sha256`, `x-amz-security-token` (optional).
+### Service and region
+
+`service` is required and must match the AWS service you are calling. A mismatch fails with `Credential should be scoped to correct service: 'service'`. `region` is optional and defaults to `us-east-1`.
+
+Common values:
+
+| Target                           | `service`     |
+| -------------------------------- | ------------- |
+| API Gateway (REST and HTTP APIs) | `execute-api` |
+| Lambda Function URL              | `lambda`      |
+| AppSync                          | `appsync`     |
+| IAM                              | `iam`         |
+| OpenSearch / Elasticsearch       | `es`          |
+| S3                               | `s3`          |
+
+### Credentials
+
+Credentials are **optional in Node.js** and **required in the browser**. When omitted in Node.js they are resolved with [`@aws-sdk/credential-provider-node`](https://www.npmjs.com/package/@aws-sdk/credential-provider-node), which checks, in order: environment variables, SSO token cache, web identity tokens, shared credentials and config files, and finally the EC2/ECS instance metadata service.
 
 ```ts
-const signedRequest = await signRequest(url, options);
-
-// Fetch the signed request
-const response = await fetch(signedRequest);
-
-// Log the signed headers from the request
-console.log(signedRequest.headers.get('authorization')); // AWS4-HMAC-SHA256 Credential=.../20250101/us-east-1/lambda/aws4_request, SignedHeaders=host;x-amz-date;x-amz-content-sha256;x-amz-security-token, Signature=...
-console.log(signedRequest.headers.get('host')); // mylambda.lambda-url.eu-west-1.on.aws
-console.log(signedRequest.headers.get('x-amz-date')); // 20250101T000000Z
-console.log(signedRequest.headers.get('x-amz-content-sha256')); // ...
-console.log(signedRequest.headers.get('x-amz-security-token')); // only if credentials include a session token
-
-// Convert the signed headers to plain object
-const headers = Object.fromEntries(signedRequest.headers.entries());
-console.log(headers.authorization); // AWS4-HMAC-SHA256 Credential=.../20250101/us-east-1/lambda/aws4_request, SignedHeaders=host;x-amz-date;x-amz-content-sha256;x-amz-security-token, Signature=...
+// Credentials are picked up from the environment
+const signedRequest = await signRequest(url, { service: 'lambda', region: 'eu-west-1' });
 ```
 
-The `headers` is a [`Headers`](https://developer.mozilla.org/en-US/docs/Web/API/Headers) object and can be converted to plain object for use with other HTTP libraries.
+> [!IMPORTANT]
+> The default provider is constructed once and reused for the lifetime of the process. The AWS SDK caches the credentials it resolves and refreshes them before they expire, so only the first signed request pays for the lookup. Because the provider is pinned, changes to `AWS_PROFILE` or the other credential environment variables after the first signed request are not picked up; pass `credentials` explicitly if you need to switch identities at runtime.
 
-### Options
-
-The `signRequest` function accepts the following options:
-
-| Parameter     | Type                                                                                                                                     | Default                                  | Description                                                                                                                                                                                                                                                                                                      |
-| ------------- | ---------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `service`     | `string`                                                                                                                                 | Required                                 | The `service` is **required** and must match the AWS service you are signing requests for. If it doesn't match, the request will fail with an error like: `Credential should be scoped to correct service: 'service'`.                                                                                           |
-| `region`      | `string`                                                                                                                                 | `us-east-1`                              | The `region` is **optional** and defaults to `us-east-1` if not provided. Some services like IAM are global and don't require a region.                                                                                                                                                                          |
-| `credentials` | [`AwsCredentialIdentity`](https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/Package/-smithy-types/Interface/AwsCredentialIdentity/) | Optional in Node.js, required in browser | The `credentials` is **optional** in Node.js environments where they will be retrieved from the environment using [`@aws-sdk/credential-provider-node`](https://www.npmjs.com/package/@aws-sdk/credential-provider-node). In browser environments, credentials are **required** and must be provided explicitly. |
-
-#### Credentials
-
-The `credentials` have type [`AwsCredentialIdentity`](https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/Package/-smithy-types/Interface/AwsCredentialIdentity/) and consist of an `accessKeyId`, `secretAccessKey` and optionally a `sessionToken`. Credential handling differs between Node.js and browser environments:
-
-##### Node.js
-
-In Node.js environments, credentials are **optional**. If not provided, they will be automatically loaded from the environment using [`@aws-sdk/credential-provider-node`](https://www.npmjs.com/package/@aws-sdk/credential-provider-node), which checks several sources in this order:
-
-- Environment variables exposed via process.env
-- SSO credentials from token cache
-- Web identity token credentials
-- Shared credentials and config ini files
-- The EC2/ECS Instance Metadata Service
-
-##### Browser
-
-In browser environments, credentials are **required** and must be provided explicitly for security reasons. The recommended method to provide credentials is to use Amazon Cognito Identity or web federated identity providers using [`@aws-sdk/credential-providers`](https://www.npmjs.com/package/@aws-sdk/credential-providers).
-
-> [!WARNING]
-> Never hardcode AWS credentials in browser applications. Hard coding credentials poses a risk of exposing your access key ID and secret access key.
+You can always pass credentials explicitly, which skips the lookup. The option accepts either a static [`AwsCredentialIdentity`](https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/Package/-smithy-types/Interface/AwsCredentialIdentity/) or an [`AwsCredentialIdentityProvider`](https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/Package/-smithy-types/Interface/AwsCredentialIdentityProvider/) function:
 
 ```ts
-import { fromCognitoIdentity } from '@aws-sdk/credential-providers';
-
-const signedRequest = await signRequest('https://mylambda.lambda-url.eu-west-1.on.aws/', {
+const signedRequest = await signRequest(url, {
   service: 'lambda',
   region: 'eu-west-1',
-  credentials: fromCognitoIdentity({
-    // Required. The unique identifier for the identity against which credentials
-    // will be issued.
-    identityId: 'us-east-1:128d0a74-c82f-4553-916d-90053example',
-    // Optional. The ARN of the role to be assumed when multiple roles were received in the token
-    // from the identity provider.
-    customRoleArn: 'arn:aws:iam::1234567890:role/MYAPP-CognitoIdentity',
-    // Optional. A set of name-value pairs that map provider names to provider tokens.
-    // Required when using identities associated with external identity providers such as Facebook.
-    logins: {
-      'graph.facebook.com': 'FBTOKEN',
-      'www.amazon.com': 'AMAZONTOKEN',
-      'accounts.google.com': 'GOOGLETOKEN',
-      'api.twitter.com': "TWITTERTOKEN'",
-      'www.digits.com': 'DIGITSTOKEN',
-    },
-    // Optional overrides. This is passed to an inner Cognito client
-    // instantiated to resolve the credentials. Region and profile
-    // are inherited from the upper client if present unless overridden.
-    clientConfig: {},
+  credentials: {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
+    // sessionToken: only for temporary credentials, adds the x-amz-security-token header
+    sessionToken: process.env.AWS_SESSION_TOKEN,
+  },
+});
+```
+
+In the browser there is no environment to resolve from, so omitting `credentials` throws. Use temporary, scoped credentials from Amazon Cognito or a web federated identity provider via [`@aws-sdk/credential-providers`](https://www.npmjs.com/package/@aws-sdk/credential-providers):
+
+```ts
+import { fromCognitoIdentityPool } from '@aws-sdk/credential-providers';
+
+const signedRequest = await signRequest(url, {
+  service: 'execute-api',
+  region: 'eu-west-1',
+  credentials: fromCognitoIdentityPool({
+    identityPoolId: 'eu-west-1:...',
+    clientConfig: { region: 'eu-west-1' },
   }),
 });
 ```
 
-## Examples
+> [!WARNING]
+> Never hardcode AWS credentials in a browser application. Doing so exposes your access key ID and secret access key to anyone who loads the page.
 
-The following examples show how to use the signed request with different HTTP libraries.
+## Advanced
 
-### [Fetch](https://developer.mozilla.org/en-US/docs/Web/API/fetch)
+### Sign last
+
+> [!IMPORTANT]
+> The signature covers the method, URL, query string, headers and body. Anything you change after signing invalidates it and the request fails with `403 Forbidden`. In particular, do not add headers or query parameters to the request after calling `signRequest`, and send `signedRequest.url` rather than the URL you started with.
+
+### Browser bundles
+
+The Node-only credential provider is loaded through a dynamic import, and this package maps it to `false` in its `browser` field, so bundlers leave it out of browser builds entirely. This is why credentials must be explicit in the browser.
+
+## API
+
+### `signRequest(input, options)`
 
 ```ts
-import { signRequest } from 'aws-sigv4-sign';
-
-const signedRequest = await signRequest('https://mylambda.lambda-url.eu-west-1.on.aws/', {
-  service: 'lambda',
-  region: 'eu-west-1',
-});
-const response = await fetch(signedRequest);
+function signRequest(input: string | Request | URL, options: SignRequestOptions): Promise<Request>;
+function signRequest(input: string | Request | URL, init: RequestInit, options: SignRequestOptions): Promise<Request>;
 ```
 
-### [Axios](https://github.com/axios/axios)
+Returns a new `Request` with the SigV4 headers applied. The `host` header is always set from the URL, because SigV4 requires it. Two overloads: pass `options` second when there is no `RequestInit`, third when there is.
 
 ```ts
-import axios from 'axios';
-import { signRequest } from 'aws-sigv4-sign';
-
-const signedRequest = await signRequest('https://mylambda.lambda-url.eu-west-1.on.aws/', {
-  service: 'lambda',
-  region: 'eu-west-1',
-});
-const headers = Object.fromEntries(signedRequest.headers.entries());
-const response = await axios(signedRequest.url, { headers });
+await signRequest(url, { service: 'lambda' });
+await signRequest(url, { method: 'POST', body: '{}' }, { service: 'lambda' });
 ```
 
-### [Got](https://github.com/sindresorhus/got)
+### `parseRequest(input, init?)`
 
 ```ts
-import { signRequest } from 'aws-sigv4-sign';
-import got from 'got';
-
-const signedRequest = await signRequest('https://mylambda.lambda-url.eu-west-1.on.aws/', {
-  service: 'lambda',
-  region: 'eu-west-1',
-});
-const headers = Object.fromEntries(signedRequest.headers.entries());
-const response = await got(signedRequest.url, { headers });
+function parseRequest(
+  input: string | Request | URL,
+  init?: RequestInit,
+): Promise<{
+  url: URL;
+  method: string;
+  headers: Record<string, string>;
+  body?: ArrayBuffer;
+}>;
 ```
 
-### [Ky](https://github.com/sindresorhus/ky)
+Normalizes the `fetch`-style arguments into their parts, with header names lowercased and the body read into an `ArrayBuffer`. Values in `init` override those on a `Request` input. `signRequest` uses this internally; it is exported for callers that need the normalized request without signing it.
 
 ```ts
-import { signRequest } from 'aws-sigv4-sign';
-import ky from 'ky';
-
-const signedRequest = await signRequest('https://mylambda.lambda-url.eu-west-1.on.aws/', {
-  service: 'lambda',
-  region: 'eu-west-1',
-});
-const headers = Object.fromEntries(signedRequest.headers.entries());
-const response = await ky.get(signedRequest.url, { headers });
+const { url, method, headers } = await parseRequest(url, { method: 'POST' });
 ```
 
-### [node:https](https://nodejs.org/api/https.html)
+### `getDefaultCredentialProvider()`
 
 ```ts
-import { signRequest } from 'aws-sigv4-sign';
-import { request } from 'node:https';
+function getDefaultCredentialProvider(): Promise<AwsCredentialIdentityProvider>;
+```
 
-const signedRequest = await signRequest('https://mylambda.lambda-url.eu-west-1.on.aws/', {
-  service: 'lambda',
-  region: 'eu-west-1',
-});
-const headers = Object.fromEntries(signedRequest.headers.entries());
-const body = '';
-const response = new Promise((resolve, reject) => {
-  const req = request(signedRequest.url, { headers }, (res) => {
-    let data = '';
+Returns the default provider from [`@aws-sdk/credential-provider-node`](https://www.npmjs.com/package/@aws-sdk/credential-provider-node), constructed once and reused for the lifetime of the process. Rejects in browser environments, where credentials must be explicit. This is what `signRequest` calls when `credentials` is omitted; you rarely need it directly.
 
-    res.on('data', (chunk) => {
-      data += chunk;
-    });
+```ts
+const provider = await getDefaultCredentialProvider();
+const credentials = await provider();
+```
 
-    res.on('end', () =>
-      resolve({
-        status: res.statusCode ?? 0,
-        statusText: res.statusMessage,
-        data,
-      }),
-    );
-  });
+## Types
 
-  req.on('error', reject);
+### `SignRequestOptions`
 
-  if (body) {
-    req.write(body);
-  }
+The options object accepted by `signRequest`.
 
-  req.end();
-});
+```ts
+import type { SignRequestOptions } from 'aws-sigv4-sign';
+
+type SignRequestOptions = {
+  service: string; // required, e.g. 'lambda' or 'execute-api'
+  region?: string; // default: 'us-east-1'
+  credentials?: AwsCredentialIdentity | AwsCredentialIdentityProvider; // default: resolved from the environment in Node.js
+};
 ```
 
 ## License
