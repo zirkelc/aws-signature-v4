@@ -117,6 +117,8 @@ Credentials are **optional**. When omitted, they are resolved from the environme
 const signedFetch = createSignedFetcher({ service: 'lambda', region: 'eu-west-1' });
 ```
 
+The provider is constructed once and reused for the lifetime of the process. The AWS SDK caches the credentials it resolves and refreshes them before they expire, so only the first signed request pays for the lookup. Because the provider is pinned, changes to `AWS_PROFILE` or the other credential environment variables after the first signed request are not picked up; pass `credentials` explicitly if you need to switch identities at runtime.
+
 You can always pass them explicitly, which skips the lookup:
 
 ```ts
