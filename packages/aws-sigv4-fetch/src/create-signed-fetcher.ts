@@ -18,6 +18,10 @@ export type SignedFetcherOptions = {
    * Optional in Node.js environments where they will be retrieved from the environment using [`@aws-sdk/credential-provider-node`](https://www.npmjs.com/package/@aws-sdk/credential-provider-node).
    * In browser environments, credentials are **required** and must be provided explicitly.
    *
+   * When omitted, the default provider is constructed once and reused for the lifetime of the
+   * process, so environment changes are not picked up after the first signed request. Pass this
+   * option explicitly to control credential resolution yourself.
+   *
    * @see {@link https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/Package/-smithy-types/Interface/AwsCredentialIdentity/ | AwsCredentialIdentity}
    * @see {@link https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/Package/-smithy-types/Interface/AwsCredentialIdentityProvider/ | AwsCredentialIdentityProvider}
    */
