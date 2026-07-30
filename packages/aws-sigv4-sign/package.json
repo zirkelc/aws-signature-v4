@@ -1,6 +1,6 @@
 {
   "name": "aws-sigv4-sign",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "SignatureV4 sign function implemented with the official AWS SDK",
   "keywords": [
     "aws",
