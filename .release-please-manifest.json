@@ -1,4 +1,4 @@
 {
-  "packages/aws-sigv4-sign": "2.1.0",
-  "packages/aws-sigv4-fetch": "5.1.0"
+  "packages/aws-sigv4-sign": "1.2.1",
+  "packages/aws-sigv4-fetch": "4.4.1"
 }
