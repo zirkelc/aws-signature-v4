@@ -3,7 +3,7 @@
 A small wrapper around the [`fetch`](https://developer.mozilla.org/en-US/docs/Web/API/fetch) API to automatically sign HTTP requests with AWS Signature Version 4 (SigV4) authentication, built with the official AWS SDK.
 
 > [!TIP]
-> If you are using other HTTP libraries like Axios, Ky, Got, or any other HTTP library, consider using the [`aws-sigv4-sign`](https://github.com/zirkelc/aws-sigv4/tree/main/packages/aws-sigv4-sign) package to sign requests.
+> If you are using other HTTP libraries like Axios, Ky, Got, or any other HTTP library, consider using the [`aws-sigv4-sign`](https://github.com/zirkelc/aws-signature-v4/tree/main/packages/aws-sigv4-sign) package to sign requests.
 
 ## Install
 

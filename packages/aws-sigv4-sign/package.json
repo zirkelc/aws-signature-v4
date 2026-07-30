@@ -17,14 +17,14 @@
     "signer",
     "sigv4"
   ],
-  "homepage": "https://github.com/zirkelc/aws-sigv4/packages/aws-sigv4-sign#readme",
+  "homepage": "https://github.com/zirkelc/aws-signature-v4/packages/aws-sigv4-sign#readme",
   "bugs": {
-    "url": "https://github.com/zirkelc/aws-sigv4/issues"
+    "url": "https://github.com/zirkelc/aws-signature-v4/issues"
   },
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/zirkelc/aws-sigv4.git",
+    "url": "git+https://github.com/zirkelc/aws-signature-v4.git",
     "directory": "packages/aws-sigv4-sign"
   },
   "files": [

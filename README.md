@@ -1,4 +1,4 @@
-[![CI](https://github.com/zirkelc/aws-sigv4/actions/workflows/ci.yml/badge.svg)](https://github.com/zirkelc/aws-sigv4/actions/workflows/ci.yml)
+[![CI](https://github.com/zirkelc/aws-signature-v4/actions/workflows/ci.yml/badge.svg)](https://github.com/zirkelc/aws-signature-v4/actions/workflows/ci.yml)
 [![npm](https://img.shields.io/npm/dt/aws-sigv4-fetch?label=aws-sigv4-fetch)](https://www.npmjs.com/package/aws-sigv4-fetch)
 [![npm](https://img.shields.io/npm/dt/aws-sigv4-sign?label=aws-sigv4-sign)](https://www.npmjs.com/package/aws-sigv4-sign)
 
