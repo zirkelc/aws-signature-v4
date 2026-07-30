@@ -1,5 +1,13 @@
 # aws-sigv4-sign
 
+## [2.0.1](https://github.com/zirkelc/aws-signature-v4/compare/aws-sigv4-sign@2.0.0...aws-sigv4-sign@2.0.1) (2026-07-30)
+
+
+### Documentation
+
+* call out that the default credential provider is cached ([cc59c26](https://github.com/zirkelc/aws-signature-v4/commit/cc59c265a1af81a90bc06b471f6bfe7e1829febc))
+* restructure the root and package READMEs ([c9ee42b](https://github.com/zirkelc/aws-signature-v4/commit/c9ee42bdf2d1a58f2f1b2bd91c7b5757b0cc6630))
+
 ## [2.0.0](https://github.com/zirkelc/aws-signature-v4/compare/aws-sigv4-sign@1.2.1...aws-sigv4-sign@2.0.0) (2026-07-30)
 
 
