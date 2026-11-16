@@ -1,5 +1,12 @@
 # aws-sigv4-sign
 
+## [2.0.2](https://github.com/zirkelc/aws-signature-v4/compare/aws-sigv4-sign@2.0.1...aws-sigv4-sign@2.0.2) (2026-11-16)
+
+
+### Bug Fixes
+
+* **sign:** do not escape the path again for S3 requests ([#45](https://github.com/zirkelc/aws-signature-v4/issues/45)) ([66c712d](https://github.com/zirkelc/aws-signature-v4/commit/66c712da42d8719e9fc8ed1aa456d33c60e3d045))
+
 ## [2.0.1](https://github.com/zirkelc/aws-signature-v4/compare/aws-sigv4-sign@2.0.0...aws-sigv4-sign@2.0.1) (2026-07-30)
 
 
