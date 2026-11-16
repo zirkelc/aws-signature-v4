@@ -1,5 +1,14 @@
 # aws-sigv4-fetch
 
+## [5.0.2](https://github.com/zirkelc/aws-signature-v4/compare/aws-sigv4-fetch@5.0.1...aws-sigv4-fetch@5.0.2) (2026-11-16)
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * aws-sigv4-sign bumped to 2.0.2
+
 ## [5.0.1](https://github.com/zirkelc/aws-signature-v4/compare/aws-sigv4-fetch@5.0.0...aws-sigv4-fetch@5.0.1) (2026-07-30)
 
 
