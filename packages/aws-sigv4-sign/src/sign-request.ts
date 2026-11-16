@@ -5,6 +5,15 @@ import { SignatureV4 } from '@smithy/signature-v4';
 import { getDefaultCredentialProvider } from './credential-provider.js';
 import { parseRequest } from './parse-request.js';
 
+/**
+ * Signing names of the S3 data and S3 Control APIs (including S3 Express One Zone, S3 on Outposts and S3 Object Lambda).
+ * These sign the request path as it is sent: no second URI encoding and no normalization of empty segments.
+ * All other services, including S3 Tables and S3 Vectors, expect the path to be URI-encoded again.
+ * The AWS SDK S3 and S3 Control clients disable `signingEscapePath` for the same reason.
+ * @see {@link https://docs.aws.amazon.com/IAM/latest/UserGuide/create-signed-request.html#create-canonical-request}
+ */
+const UNESCAPED_PATH_SERVICES = new Set(['s3', 's3express', 's3-outposts', 's3-object-lambda']);
+
 export type SignRequestOptions = {
   /**
    * The AWS service to sign requests for, e.g. `execute-api` for AWS API Gateway or `lambda` for Lambda Function URLs.
@@ -123,6 +132,7 @@ export async function signRequest(
     service,
     region,
     sha256: Sha256,
+    uriEscapePath: !UNESCAPED_PATH_SERVICES.has(service),
   });
 
   const { headers: signedHeaders } = await signer.sign(httpRequest);

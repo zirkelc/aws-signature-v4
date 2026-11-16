@@ -444,6 +444,46 @@ describe('signRequest', () => {
     });
   });
 
+  describe('S3', () => {
+    it.each([
+      ['my file.txt', '813afaeb302f21d157ec74731fa061ffe0c2e3e9379a39ee90986e8a0d7ed1ab'],
+      ['my%20file.txt', '813afaeb302f21d157ec74731fa061ffe0c2e3e9379a39ee90986e8a0d7ed1ab'],
+      ['a/b%2Bc.txt', '0c51a2132cae2f84aa3ddd0af448b7424e409ce904b211b0dbe7c24d08a227dd'],
+      ['%E2%82%AC.txt', '63c2792003d867c9380f75752a249bc140dbf90946987217776f33611621dec5'],
+      ['dir//double.txt', '6d0929b1eb7825b0cc950e276c82c5cac101b4e697cd6a7620fffc2d8f81ab06'],
+    ])('should sign the path of key %s without escaping it again', async (key, signature) => {
+      // Arrange
+      const s3Url = `https://bucket.s3.${region}.amazonaws.com/${key}`;
+
+      // Act
+      const signedRequest = await signRequest(s3Url, { ...options, service: 's3' });
+
+      // Assert
+      const signedHeaders = getSignedHeaders(signedRequest);
+      expect(signedHeaders.authorization).toBe(
+        `AWS4-HMAC-SHA256 Credential=foo/20000101/us-bar-1/s3/aws4_request, SignedHeaders=host;x-amz-content-sha256;x-amz-date, Signature=${signature}`,
+      );
+    });
+
+    it.each([
+      ['s3express', 'd416bddfba99ce36fb34b4ed888cb44fda12535519912fc22175e2ccdd338c65'],
+      ['s3-outposts', 'f494ca536bfa25b31e7978c0208baf77dca5d37605d1e9d6d3bd9e9f431718ba'],
+      ['s3-object-lambda', '0bc70c3065ffce62730d2680ed823a7d55b4f9427401c78abb3a34c779ddcfa1'],
+    ])('should sign the path for service %s without escaping it again', async (s3Service, signature) => {
+      // Arrange
+      const s3Url = `https://bucket.s3.${region}.amazonaws.com/dir//my file.txt`;
+
+      // Act
+      const signedRequest = await signRequest(s3Url, { ...options, service: s3Service });
+
+      // Assert
+      const signedHeaders = getSignedHeaders(signedRequest);
+      expect(signedHeaders.authorization).toBe(
+        `AWS4-HMAC-SHA256 Credential=foo/20000101/us-bar-1/${s3Service}/aws4_request, SignedHeaders=host;x-amz-content-sha256;x-amz-date, Signature=${signature}`,
+      );
+    });
+  });
+
   describe('Defaults', () => {
     it('should use default region us-east-1', async () => {
       const signedRequest = await signRequest(url, { ...options, region: undefined });
